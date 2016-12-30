@@ -9,7 +9,7 @@ Atcoder CLI submission tool written in Go.
 ## Installation
 
 ```
-$ go install github.com/emakryo/adcoter
+$ go get github.com/emakryo/adcoter
 ```
 
 ## Usage

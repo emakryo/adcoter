@@ -5,8 +5,10 @@ import (
 	"log"
 	"os"
 	"flag"
+	"bytes"
 	"strings"
 	"strconv"
+	"time"
 	"errors"
 	"os/user"
 	"net/http"
@@ -27,6 +29,12 @@ type problem struct {
 	languageID int
 	client *http.Client
 	cacheFile string
+	submissionID string
+}
+
+type status struct {
+	caseName []string
+	caseState []string
 }
 
 var prog string;
@@ -214,7 +222,112 @@ func (p *problem)submit(codePath string, languageID string) (err error) {
 		return errors.New(fmt.Sprintf("%s: Submission failure", codePath));
 	}
 
+	tokenizer = html.NewTokenizer(resp.Body);
+	var done = false;
+	var tbody = false;
+	for ; tokenizer.Next() != html.ErrorToken; tok = tokenizer.Token() {
+		if tok.Type == html.StartTagToken && tok.Data == "tbody" {
+			tbody = true;
+		}
+		if tbody && tok.Type == html.StartTagToken && tok.Data == "tr" {
+			if done {
+				break;
+			}
+			done = true;
+		}
+		if done && tok.Type == html.StartTagToken && tok.Data == "a" {
+			link := find(tok.Attr, "href");
+			if link != "" && strings.Contains(link, "submissions") {
+				splited := strings.Split(link, "/");
+				p.submissionID = splited[len(splited)-1];
+			}
+		}
+	}
+
+	if p.submissionID == "" {
+		return errors.New(fmt.Sprintf("%s: Submission ID not retrieved",
+			resp.Request.URL));
+	}
+
 	return nil;
+}
+
+func (p *problem)status() (stat status, err error) {
+	resp, err := p.client.Get(p.url.String()+"/submissions/"+p.submissionID);
+	if err != nil { return; }
+	defer resp.Body.Close();
+	
+	node, err := html.Parse(resp.Body);
+	if err != nil { return; }
+	return parseSubmission(node);
+}
+
+func parseSubmission(node *html.Node) (stat status, err error) {
+	switch node.Type {
+	case html.DocumentNode:
+		for next := node.FirstChild; next != nil; next = next.NextSibling {
+			stat, err = parseSubmission(next);
+			if err == nil {return}
+		}
+	case html.ElementNode:
+		if node.Data == "h4" && node.FirstChild != nil{
+			if strings.Contains(node.FirstChild.Data, "Test case") {
+				for sib := node.NextSibling; sib != nil; sib = sib.NextSibling {
+					if sib.Type == html.ElementNode && sib.Data == "table" {
+						return parseTable(sib);
+					}
+				}
+			}
+		}
+		for next := node.FirstChild; next != nil; next = next.NextSibling {
+			stat, err = parseSubmission(next);
+			if err == nil {return}
+		}
+	}
+
+	return stat, errors.New("Not found");
+}
+
+func parseTable(node *html.Node) (stat status, err error) {
+	var tbody *html.Node;
+	for next := node.FirstChild; next != nil; next = next.NextSibling {
+		if(next.Type == html.ElementNode && next.Data == "tbody"){
+			tbody = next;
+			break;
+		}
+	}
+	if tbody == nil {
+		return stat, errors.New("No tbody");
+	}
+	for tr := tbody.FirstChild; tr != nil; tr = tr.NextSibling {
+		if tr.Type != html.ElementNode || tr.Data != "tr" {
+			continue;
+		}
+		var col = 0;
+		if tr.FirstChild == nil {
+			return stat, errors.New("No column in the row");
+		}
+		for td := tr.FirstChild; td != nil; td = td.NextSibling {
+			if td.Type != html.ElementNode || td.Data != "td" {
+				continue;
+			}
+			if td.FirstChild == nil {
+				return stat, errors.New("No items in td");
+			}
+			if col == 0 {
+				stat.caseName = append(stat.caseName, td.FirstChild.Data);
+			}
+			if col == 1 {
+				if td.FirstChild.FirstChild == nil {
+					return stat, errors.New("Invalid state");
+				}
+				stat.caseState = append(stat.caseState, td.FirstChild.FirstChild.Data);
+			}
+			col += 1;
+		}
+	}
+
+	return stat, nil;
 }
 
 func find(attrs []html.Attribute, key string) (val string) {
@@ -229,6 +342,31 @@ func find(attrs []html.Attribute, key string) (val string) {
 func fatal(v interface{}) {
 	fmt.Printf("%s: %v\n", prog, v);
 	os.Exit(1);
+}
+
+func output(stat status) {
+	for i, n := range stat.caseName {
+		fmt.Printf("%s\t%s\n", stat.caseState[i], n);
+	}
+}
+
+func __main(){
+	content, err := ioutil.ReadFile("submissions.htm");
+	if err != nil {
+		log.Fatal(err);
+	}
+	buf := bytes.NewBuffer(content);
+	node, err := html.Parse(buf);
+	if err != nil {
+		log.Fatal(err);
+	}
+	stat, err := parseSubmission(node);
+	if err != nil {
+		log.Fatal(err);
+	}
+	for i:=0; i<len(stat.caseName); i++ {
+		fmt.Printf("%s\t%s\n", stat.caseName[i], stat.caseState[i]);
+	}
 }
 
 func main(){
@@ -264,4 +402,13 @@ func main(){
 	if err != nil {
 		fatal(err);
 	}
+
+	fmt.Printf("Judging");
+	var stat status;
+	for stat, err = p.status(); err != nil; stat, err = p.status() {
+		fmt.Printf(".");
+		time.Sleep(time.Second);
+	}
+	fmt.Printf("\n");
+	output(stat);
 }

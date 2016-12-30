@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	//"io"
 	"os"
 	"flag"
 	"strings"
@@ -30,6 +29,8 @@ type problem struct {
 	cacheFile string
 }
 
+var prog string;
+
 func newProblem(contestID, problemID string) (p problem, err error){
 	p.ContestID = contestID;
 	p.ProblemID = problemID;
@@ -44,7 +45,7 @@ func newProblem(contestID, problemID string) (p problem, err error){
 	resp, err := p.client.Get(rawContestURL);
 	defer resp.Body.Close()
 	if !p.validContest() {
-		err = errors.New("Invalid contest: "+contestID);
+		err = errors.New(contestID+": Invalid contest");
 		return;
 	}
 	err = p.retrieveTaskID();
@@ -101,20 +102,16 @@ func (p *problem)retrieveTaskID() (err error) {
 	}
 
 	if submitURL == "" {
-		return errors.New("Problem ID not found");
+		return errors.New(fmt.Sprintf("%v: Problem ID not found", p.ProblemID));
 	}
 
 	parsed, err := url.Parse(p.url.String()+submitURL);
-	if err != nil {
-		log.Fatal(err);
-	}
+	if err != nil { return; }
 	vals, err := url.ParseQuery(parsed.RawQuery);
-	if err != nil {
-		log.Fatal(err);
-	}
+	if err != nil { return; }
 	id, ok := vals["task_id"];
 	if !ok {
-		log.Fatal(err);
+		return errors.New(fmt.Sprintf("%s/assignments : Parse error",p.url.String()));
 	}
 	p.taskID = id[0];
 	return nil;
@@ -149,7 +146,7 @@ func (p *problem)login() (err error) {
 	if err != nil { return; }
 	resp.Body.Close();
 	if !p.loginSuccess() {
-		return errors.New("Invalid user ID or password");
+		return errors.New("login: Invalid user ID or password");
 	}
 	//log.Printf("Login successful");
 	p.saveCookies();
@@ -198,7 +195,7 @@ func (p *problem)submit(codePath string, languageID string) (err error) {
 		}
 	}
 	if session == "" {
-		return errors.New("Parse Failure");
+		return errors.New(fmt.Sprintf("%s/submit : Parse Failure", p.url.String()));
 	}
 
 	content, err := ioutil.ReadFile(codePath);
@@ -214,7 +211,7 @@ func (p *problem)submit(codePath string, languageID string) (err error) {
 	if err != nil { return; }
 	defer resp.Body.Close();
 	if resp.Request.URL.Path != "/submissions/me" {
-		return errors.New("Submission failure");
+		return errors.New(fmt.Sprintf("%s: Submission failure", codePath));
 	}
 
 	return nil;
@@ -229,38 +226,42 @@ func find(attrs []html.Attribute, key string) (val string) {
 	return "";
 }
 
+func fatal(v interface{}) {
+	fmt.Printf("%s: %v\n", prog, v);
+	os.Exit(1);
+}
+
 func main(){
-	fmt.Printf("Hello, adcoter!\n");
+	prog = os.Args[0];
 
 	flag.Parse();
 	if flag.NArg() < 4 {
-		log.Fatal("Too small number of arguments");
+		fatal("Too small number of arguments");
 	}
 	contestType := flag.Arg(0);
 	contestID, err := strconv.Atoi(flag.Arg(1));
 	if err != nil {
-		log.Fatal("Contest ID must be an integer");
+		fatal(fmt.Sprintf("%v: Contest ID must be an integer", flag.Arg(1)));
 	}
-	problemID := flag.Arg(2);
-	//sourcePath := flag.Arg(3);
-
+	problemID := strings.ToUpper(flag.Arg(2));
+	sourcePath := flag.Arg(3);
 
 	contest := fmt.Sprintf("%s%03d", strings.ToLower(contestType), contestID);
-	p, err := newProblem(contest, strings.ToUpper(problemID));
+	p, err := newProblem(contest, problemID);
 	if err != nil {
-		log.Fatal(err);
+		fatal(err);
 	}
 
 	err = p.authorize();
 	if err != nil {
 		err = p.login();
 		if err != nil {
-			log.Fatal(err);
+			fatal(err);
 		}
 	}
 
-	err = p.submit("../../a.cpp", "14");
+	err = p.submit(sourcePath, "14");
 	if err != nil {
-		log.Fatal(err);
+		fatal(err);
 	}
 }

@@ -415,6 +415,19 @@ func fatal(v interface{}) {
 
 func output(stat status) {
 	logger.Printf("%d test cases\n", len(stat.caseName))
+	ac := true;
+	for _, s := range stat.caseState {
+		if s != "AC" {
+			ac = false
+			break
+		}
+	}
+
+	if ac {
+		fmt.Printf("AC (%d cases)\n", len(stat.caseState))
+		return
+	}
+
 	for i, n := range stat.caseName {
 		fmt.Printf("%s\t%s\n", stat.caseState[i], n)
 	}

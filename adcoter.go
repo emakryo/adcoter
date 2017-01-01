@@ -1,13 +1,13 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"github.com/dgiagio/getpass"
 	"golang.org/x/net/html"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -37,7 +37,16 @@ type status struct {
 	caseState []string
 }
 
+type dummyWriter struct {
+}
+
+func (w dummyWriter) Write(p []byte) (n int, err error) {
+	return len(p), nil
+}
+
 var prog string
+var logger *log.Logger
+var debug_out io.WriteCloser
 
 func newProblem(contestID, problemID string) (p problem, err error) {
 	p.ContestID = contestID
@@ -252,12 +261,36 @@ func (p *problem) submit(codePath string, languageID string) (err error) {
 		return errors.New(fmt.Sprintf("%s: Submission failure", codePath))
 	}
 
-	tokenizer = html.NewTokenizer(resp.Body)
-	var done = false
-	var tbody = false
-	for ; tokenizer.Next() != html.ErrorToken; tok = tokenizer.Token() {
+	wr, err := os.Create("first_submission.html")
+	defer wr.Close()
+	if err != nil {
+		return
+	}
+	rd := io.TeeReader(resp.Body, wr)
+
+	err = p.retrieveSubmissionID(rd)
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("%s: Submission ID not retrieved",
+			resp.Request.URL))
+	}
+
+	logger.Printf("submission ID: %s\n", p.submissionID)
+
+	return nil
+}
+
+func (p *problem) retrieveSubmissionID(body io.Reader) (err error) {
+	tokenizer := html.NewTokenizer(body)
+	done := false
+	tbody := false
+	for tokenizer.Next() != html.ErrorToken {
+		tok := tokenizer.Token()
 		if tok.Type == html.StartTagToken && tok.Data == "tbody" {
 			tbody = true
+		}
+		if tok.Type == html.EndTagToken && tok.Data == "tbody" {
+			tbody = false
 		}
 		if tbody && tok.Type == html.StartTagToken && tok.Data == "tr" {
 			if done {
@@ -265,21 +298,18 @@ func (p *problem) submit(codePath string, languageID string) (err error) {
 			}
 			done = true
 		}
-		if done && tok.Type == html.StartTagToken && tok.Data == "a" {
+		if tbody && tok.Type == html.StartTagToken && tok.Data == "a" {
 			link := find(tok.Attr, "href")
 			if link != "" && strings.Contains(link, "submissions") {
 				splited := strings.Split(link, "/")
 				p.submissionID = splited[len(splited)-1]
+				return nil
 			}
 		}
 	}
 
-	if p.submissionID == "" {
-		return errors.New(fmt.Sprintf("%s: Submission ID not retrieved",
-			resp.Request.URL))
-	}
+	return errors.New("Submission ID not found")
 
-	return nil
 }
 
 func (p *problem) status() (stat status, err error) {
@@ -289,7 +319,8 @@ func (p *problem) status() (stat status, err error) {
 	}
 	defer resp.Body.Close()
 
-	node, err := html.Parse(resp.Body)
+	rd := io.TeeReader(resp.Body, debug_out)
+	node, err := html.Parse(rd)
 	if err != nil {
 		return
 	}
@@ -383,6 +414,7 @@ func fatal(v interface{}) {
 }
 
 func output(stat status) {
+	logger.Printf("%d test cases\n", len(stat.caseName))
 	for i, n := range stat.caseName {
 		fmt.Printf("%s\t%s\n", stat.caseState[i], n)
 	}
@@ -391,7 +423,19 @@ func output(stat status) {
 func main() {
 	prog = os.Args[0]
 
+	verbose := flag.Bool("v", false, "verbose output")
 	flag.Parse()
+	var out io.Writer
+	var err error
+	if *verbose {
+		out = os.Stdout
+	} else {
+		out, err = os.Create(os.DevNull)
+		if err != nil {
+			fatal(err)
+		}
+	}
+	logger = log.New(out, "", log.LstdFlags|log.Lshortfile)
 	if flag.NArg() < 4 {
 		fatal("Too small number of arguments")
 	}
@@ -424,8 +468,25 @@ func main() {
 
 	fmt.Printf("Judging")
 	var stat status
-	for stat, err = p.status(); err != nil; stat, err = p.status() {
+	var cnt = 0
+	debug_out, err = os.Create(os.DevNull)
+	if err != nil {
+		fatal(err)
+	}
+	err = errors.New("Dummy Error")
+	for err != nil {
+		if *verbose {
+			debug_out.Close()
+			out, err0 := os.Create(fmt.Sprintf("submissions%d.html", cnt))
+			debug_out = out
+			cnt += 1
+			if err0 != nil {
+				fatal(err0)
+			}
+		}
+		stat, err = p.status()
 		fmt.Printf(".")
+		logger.Println(err)
 		time.Sleep(time.Second)
 	}
 	fmt.Printf("\n")

@@ -37,13 +37,6 @@ type status struct {
 	caseState []string
 }
 
-type dummyWriter struct {
-}
-
-func (w dummyWriter) Write(p []byte) (n int, err error) {
-	return len(p), nil
-}
-
 var prog string
 var logger *log.Logger
 var debug_out io.WriteCloser
@@ -415,7 +408,7 @@ func fatal(v interface{}) {
 
 func output(stat status) {
 	logger.Printf("%d test cases\n", len(stat.caseName))
-	ac := true;
+	ac := true
 	for _, s := range stat.caseState {
 		if s != "AC" {
 			ac = false

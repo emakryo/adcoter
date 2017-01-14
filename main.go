@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"github.com/dgiagio/getpass"
 	"golang.org/x/net/html"
@@ -15,15 +14,12 @@ import (
 	"net/url"
 	"os"
 	"os/user"
-	"strconv"
 	"strings"
 	"time"
 )
 
 type problem struct {
-	ContestID string
-	ProblemID string
-
+	problemID string
 	url          *url.URL
 	taskID       string
 	languageID   int
@@ -41,25 +37,25 @@ var prog string
 var logger *log.Logger
 var debug_out io.WriteCloser
 
-func newProblem(contestID, problemID string) (p problem, err error) {
-	p.ContestID = contestID
-	p.ProblemID = problemID
-	rawContestURL := fmt.Sprintf("https://%s.contest.atcoder.jp", contestID)
-	contestURL, err := url.Parse(rawContestURL)
+func newProblem(contestURL, problemID string) (p problem, err error) {
+	p.problemID = problemID
+	p.url, err = url.Parse(contestURL)
 	if err != nil {
 		return
 	}
-	p.url = contestURL
 
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		return
 	}
 	p.client = &http.Client{Jar: jar}
-	resp, err := p.client.Get(rawContestURL)
+	resp, err := p.client.Get(contestURL)
+	if err != nil {
+		return
+	}
 	defer resp.Body.Close()
 	if !p.validContest() {
-		err = errors.New(contestID + ": Invalid contest")
+		err = errors.New(contestURL + ": Invalid contest")
 		return
 	}
 	err = p.retrieveTaskID()
@@ -114,7 +110,7 @@ func (p *problem) retrieveTaskID() (err error) {
 		if tok.Type == html.StartTagToken && tok.Data == "td" {
 			column += 1
 		}
-		if tok.Type == html.TextToken && column == 1 && tok.Data == p.ProblemID {
+		if tok.Type == html.TextToken && column == 1 && tok.Data == p.problemID {
 			match = true
 		}
 		if tok.Type == html.StartTagToken && column == 5 && tok.Data == "a" && match {
@@ -124,7 +120,7 @@ func (p *problem) retrieveTaskID() (err error) {
 	}
 
 	if submitURL == "" {
-		return errors.New(fmt.Sprintf("%v: Problem ID not found", p.ProblemID))
+		return errors.New(fmt.Sprintf("%v: Problem ID not found", p.problemID))
 	}
 
 	parsed, err := url.Parse(p.url.String() + submitURL)
@@ -429,11 +425,10 @@ func output(stat status) {
 func main() {
 	prog = os.Args[0]
 
-	verbose := flag.Bool("v", false, "verbose output")
-	flag.Parse()
+	var arg = parseArg()
 	var out io.Writer
 	var err error
-	if *verbose {
+	if arg.verbose {
 		out = os.Stdout
 	} else {
 		out, err = os.Create(os.DevNull)
@@ -442,19 +437,9 @@ func main() {
 		}
 	}
 	logger = log.New(out, "", log.LstdFlags|log.Lshortfile)
-	if flag.NArg() < 4 {
-		fatal("Too small number of arguments")
-	}
-	contestType := flag.Arg(0)
-	contestID, err := strconv.Atoi(flag.Arg(1))
-	if err != nil {
-		fatal(fmt.Sprintf("%v: Contest ID must be an integer", flag.Arg(1)))
-	}
-	problemID := strings.ToUpper(flag.Arg(2))
-	sourcePath := flag.Arg(3)
 
-	contest := fmt.Sprintf("%s%03d", strings.ToLower(contestType), contestID)
-	p, err := newProblem(contest, problemID)
+	logger.Println(arg.url, arg.problem)
+	p, err := newProblem(arg.url, arg.problem)
 	if err != nil {
 		fatal(err)
 	}
@@ -467,7 +452,7 @@ func main() {
 		}
 	}
 
-	err = p.submit(sourcePath, "14")
+	err = p.submit(arg.source, "14")
 	if err != nil {
 		fatal(err)
 	}
@@ -481,7 +466,7 @@ func main() {
 	}
 	err = errors.New("Dummy Error")
 	for err != nil {
-		if *verbose {
+		if arg.debug {
 			debug_out.Close()
 			out, err0 := os.Create(fmt.Sprintf("submissions%d.html", cnt))
 			debug_out = out

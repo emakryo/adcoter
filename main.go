@@ -1,308 +1,27 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/dgiagio/getpass"
 	"golang.org/x/net/html"
 	"io"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"net/http/cookiejar"
-	"net/url"
 	"os"
-	"os/user"
 	"strings"
 	"time"
 )
 
-type problem struct {
-	problemID string
-	url          *url.URL
-	taskID       string
-	languageID   int
-	client       *http.Client
-	cacheFile    string
-	submissionID string
-}
+var program string
+var logger *log.Logger
+var debug_out io.WriteCloser
 
 type status struct {
 	caseName  []string
 	caseState []string
 }
 
-var prog string
-var logger *log.Logger
-var debug_out io.WriteCloser
-
-func newProblem(contestURL, problemID string) (p problem, err error) {
-	p.problemID = problemID
-	p.url, err = url.Parse(contestURL)
-	if err != nil {
-		return
-	}
-
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-		return
-	}
-	p.client = &http.Client{Jar: jar}
-	resp, err := p.client.Get(contestURL)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	if !p.validContest() {
-		err = errors.New(contestURL + ": Invalid contest")
-		return
-	}
-	err = p.retrieveTaskID()
-	if err != nil {
-		return
-	}
-
-	usr, err := user.Current()
-	if err != nil {
-		return
-	}
-	cacheDir := usr.HomeDir + "/.adcoter"
-	os.MkdirAll(cacheDir, 0700)
-	p.cacheFile = usr.HomeDir + "/.adcoter/cookies"
-	return p, nil
-}
-
-func (p *problem) validContest() bool {
-	resp, err := p.client.Get(p.url.String())
-	if err != nil {
-		return false
-	}
-	defer resp.Body.Close()
-	tokenizer := html.NewTokenizer(resp.Body)
-
-	var tok html.Token
-	for ; tokenizer.Next() != html.ErrorToken; tok = tokenizer.Token() {
-		if tok.Type == html.TextToken && tok.Data == "404" {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (p *problem) retrieveTaskID() (err error) {
-	resp, err := p.client.Get(p.url.String() + "/assignments")
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	tokenizer := html.NewTokenizer(resp.Body)
-	var tok html.Token
-	var column int
-	var match = false
-	var submitURL string
-	for ; tokenizer.Next() != html.ErrorToken; tok = tokenizer.Token() {
-		if tok.Type == html.StartTagToken && tok.Data == "tr" {
-			column = 0
-			match = false
-		}
-		if tok.Type == html.StartTagToken && tok.Data == "td" {
-			column += 1
-		}
-		if tok.Type == html.TextToken && column == 1 && tok.Data == p.problemID {
-			match = true
-		}
-		if tok.Type == html.StartTagToken && column == 5 && tok.Data == "a" && match {
-			submitURL = find(tok.Attr, "href")
-			break
-		}
-	}
-
-	if submitURL == "" {
-		return errors.New(fmt.Sprintf("%v: Problem ID not found", p.problemID))
-	}
-
-	parsed, err := url.Parse(p.url.String() + submitURL)
-	if err != nil {
-		return
-	}
-	vals, err := url.ParseQuery(parsed.RawQuery)
-	if err != nil {
-		return
-	}
-	id, ok := vals["task_id"]
-	if !ok {
-		return errors.New(fmt.Sprintf("%s/assignments : Parse error", p.url.String()))
-	}
-	p.taskID = id[0]
-	return nil
-}
-
-func (p *problem) loginSuccess() bool {
-	resp, err := p.client.Get(p.url.String() + "/submit")
-	if err != nil {
-		return false
-	}
-	return resp.Request.URL.Path == "/submit"
-}
-
-func (p *problem) authorize() (err error) {
-	err = p.loadCookies()
-	if err != nil {
-		return
-	}
-	if !p.loginSuccess() {
-		return errors.New("Invalid cookies")
-	}
-	//log.Println("Login with cached cookies");
-	return nil
-}
-
-func (p *problem) login() (err error) {
-	var name, password string
-	fmt.Printf("User ID: ")
-	fmt.Scan(&name)
-	password, err = getpass.GetPassword("Password: ")
-	if err != nil {
-		return
-	}
-	var values = url.Values{}
-	values.Add("name", name)
-	values.Add("password", password)
-	resp, err := p.client.PostForm(p.url.String()+"/login", values)
-	if err != nil {
-		return
-	}
-	resp.Body.Close()
-	if !p.loginSuccess() {
-		return errors.New("login: Invalid user ID or password")
-	}
-	//log.Printf("Login successful");
-	p.saveCookies()
-	return nil
-}
-
-func (p *problem) saveCookies() {
-	cookies := p.client.Jar.Cookies(p.url)
-	marshaled, err := json.Marshal(cookies)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = ioutil.WriteFile(p.cacheFile, marshaled, 0400)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func (p *problem) loadCookies() (err error) {
-	var cookies []*http.Cookie
-	marshaled, err := ioutil.ReadFile(p.cacheFile)
-	if err != nil {
-		//log.Println(err);
-		return
-	}
-	err = json.Unmarshal(marshaled, &cookies)
-	if err != nil {
-		//log.Println(err);
-		return
-	}
-	p.client.Jar.SetCookies(p.url, cookies)
-	return nil
-}
-
-func (p *problem) submit(codePath string, languageID string) (err error) {
-	resp, err := p.client.Get(p.url.String() + "/submit")
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	tokenizer := html.NewTokenizer(resp.Body)
-	var tok html.Token
-	var session string
-	for ; tokenizer.Next() != html.ErrorToken; tok = tokenizer.Token() {
-		if tok.Type == html.StartTagToken && tok.Data == "input" &&
-			find(tok.Attr, "name") == "__session" {
-			session = find(tok.Attr, "value")
-		}
-	}
-	if session == "" {
-		return errors.New(fmt.Sprintf("%s/submit : Parse Failure", p.url.String()))
-	}
-
-	content, err := ioutil.ReadFile(codePath)
-	if err != nil {
-		return
-	}
-
-	data := url.Values{}
-	data.Add("__session", session)
-	data.Add("task_id", p.taskID)
-	data.Add("language_id_"+p.taskID, languageID)
-	data.Add("source_code", string(content))
-
-	resp, err = p.client.PostForm(p.url.String()+"/submit", data)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	if resp.Request.URL.Path != "/submissions/me" {
-		return errors.New(fmt.Sprintf("%s: Submission failure", codePath))
-	}
-
-	wr, err := os.Create("first_submission.html")
-	defer wr.Close()
-	if err != nil {
-		return
-	}
-	rd := io.TeeReader(resp.Body, wr)
-
-	err = p.retrieveSubmissionID(rd)
-
-	if err != nil {
-		return errors.New(fmt.Sprintf("%s: Submission ID not retrieved",
-			resp.Request.URL))
-	}
-
-	logger.Printf("submission ID: %s\n", p.submissionID)
-
-	return nil
-}
-
-func (p *problem) retrieveSubmissionID(body io.Reader) (err error) {
-	tokenizer := html.NewTokenizer(body)
-	done := false
-	tbody := false
-	for tokenizer.Next() != html.ErrorToken {
-		tok := tokenizer.Token()
-		if tok.Type == html.StartTagToken && tok.Data == "tbody" {
-			tbody = true
-		}
-		if tok.Type == html.EndTagToken && tok.Data == "tbody" {
-			tbody = false
-		}
-		if tbody && tok.Type == html.StartTagToken && tok.Data == "tr" {
-			if done {
-				break
-			}
-			done = true
-		}
-		if tbody && tok.Type == html.StartTagToken && tok.Data == "a" {
-			link := find(tok.Attr, "href")
-			if link != "" && strings.Contains(link, "submissions") {
-				splited := strings.Split(link, "/")
-				p.submissionID = splited[len(splited)-1]
-				return nil
-			}
-		}
-	}
-
-	return errors.New("Submission ID not found")
-
-}
-
-func (p *problem) status() (stat status, err error) {
-	resp, err := p.client.Get(p.url.String() + "/submissions/" + p.submissionID)
+func (sess *session) status(id string) (stat status, err error) {
+	resp, err := sess.get("/submissions/" + id)
 	if err != nil {
 		return
 	}
@@ -398,7 +117,7 @@ func find(attrs []html.Attribute, key string) (val string) {
 }
 
 func fatal(v interface{}) {
-	fmt.Printf("%s: %v\n", prog, v)
+	fmt.Printf("%s: %v\n", program, v)
 	os.Exit(1)
 }
 
@@ -423,7 +142,7 @@ func output(stat status) {
 }
 
 func main() {
-	prog = os.Args[0]
+	program = os.Args[0]
 
 	var arg = parseArg()
 	var out io.Writer
@@ -439,20 +158,12 @@ func main() {
 	logger = log.New(out, "", log.LstdFlags|log.Lshortfile)
 
 	logger.Println(arg.url, arg.problem)
-	p, err := newProblem(arg.url, arg.problem)
+	sess, err := newSession(arg.url)
 	if err != nil {
 		fatal(err)
 	}
 
-	err = p.authorize()
-	if err != nil {
-		err = p.login()
-		if err != nil {
-			fatal(err)
-		}
-	}
-
-	err = p.submit(arg.source, "14")
+	submissionID, err := sess.submit(arg.problem, arg.source, "14")
 	if err != nil {
 		fatal(err)
 	}
@@ -475,7 +186,7 @@ func main() {
 				fatal(err0)
 			}
 		}
-		stat, err = p.status()
+		stat, err = sess.status(submissionID)
 		fmt.Printf(".")
 		logger.Println(err)
 		time.Sleep(time.Second)

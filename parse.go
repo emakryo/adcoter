@@ -2,17 +2,17 @@ package main
 
 import (
 	"flag"
-	"strings"
 	"fmt"
 	"path"
+	"strings"
 )
 
 type argument struct {
-	url string
+	url     string
 	verbose bool
-	debug bool
+	debug   bool
 	problem string
-	source string
+	source  string
 }
 
 func parseArg() (arg argument) {
@@ -30,7 +30,7 @@ func parseArg() (arg argument) {
 	arg.verbose = *verb
 	arg.debug = *debug
 
-	if flag.NArg() < 1{
+	if flag.NArg() < 1 {
 		fatal("No source file")
 	} else if flag.NArg() > 1 {
 		fatal("Too many source files")
@@ -43,7 +43,7 @@ func parseArg() (arg argument) {
 	if *abc != minf {
 		x += 1
 	}
-	if *agc != minf{
+	if *agc != minf {
 		x += 1
 	}
 	if *url != "" {
@@ -53,17 +53,17 @@ func parseArg() (arg argument) {
 		fatal("Multiple types of contests are specified")
 	}
 
-	if *arc != minf{
+	if *arc != minf {
 		if *arc < 0 {
 			fatal("Invalid contest ID")
 		}
 		arg.url = fmt.Sprintf("arc%03d.contest.atcoder.jp", *arc)
-	} else if *abc != minf{
+	} else if *abc != minf {
 		if *abc < 0 {
 			fatal("Invalid contest ID")
 		}
 		arg.url = fmt.Sprintf("abc%03d.contest.atcoder.jp", *abc)
-	} else if *agc != minf{
+	} else if *agc != minf {
 		if *agc < 0 {
 			fatal("Invalid contest ID")
 		}
@@ -74,7 +74,7 @@ func parseArg() (arg argument) {
 		arg.url = *url
 	}
 
-	arg.url = "https://"+arg.url
+	arg.url = "https://" + arg.url
 
 	if *prob == "" {
 		basename := path.Base(flag.Arg(0))

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"path"
 	"strings"
 )
@@ -13,6 +14,12 @@ type argument struct {
 	debug   bool
 	problem string
 	source  string
+}
+
+func exitWithUsage(err interface{}) {
+	fmt.Printf("%s: %v\n", program, err)
+	flag.Usage()
+	os.Exit(255)
 }
 
 func parseArg() (arg argument) {
@@ -31,9 +38,9 @@ func parseArg() (arg argument) {
 	arg.debug = *debug
 
 	if flag.NArg() < 1 {
-		fatal("No source file")
+		exitWithUsage("No source file")
 	} else if flag.NArg() > 1 {
-		fatal("Too many source files")
+		exitWithUsage("Too many source files")
 	}
 
 	x := 0
@@ -50,22 +57,25 @@ func parseArg() (arg argument) {
 		x += 1
 	}
 	if x > 1 {
-		fatal("Multiple types of contests are specified")
+		exitWithUsage("Multiple types of contests are specified")
+	}
+	if x < 1 {
+		exitWithUsage("No contest is specified")
 	}
 
 	if *arc != minf {
 		if *arc < 0 {
-			fatal("Invalid contest ID")
+			exitWithUsage("Invalid contest ID")
 		}
 		arg.url = fmt.Sprintf("arc%03d.contest.atcoder.jp", *arc)
 	} else if *abc != minf {
 		if *abc < 0 {
-			fatal("Invalid contest ID")
+			exitWithUsage("Invalid contest ID")
 		}
 		arg.url = fmt.Sprintf("abc%03d.contest.atcoder.jp", *abc)
 	} else if *agc != minf {
 		if *agc < 0 {
-			fatal("Invalid contest ID")
+			exitWithUsage("Invalid contest ID")
 		}
 		arg.url = fmt.Sprintf("agc%03d.contest.atcoder.jp", *agc)
 	}

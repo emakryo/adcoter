@@ -7,9 +7,17 @@ import (
 	"io"
 	"io/ioutil"
 	"net/url"
-	"os"
 	"strings"
 )
+
+func find(attrs []html.Attribute, key string) (val string) {
+	for _, attr := range attrs {
+		if attr.Key == key {
+			return attr.Val
+		}
+	}
+	return ""
+}
 
 func (sess *session) retrieveTaskID(problem string) (id string, err error) {
 	resp, err := sess.get("/assignments")
@@ -106,14 +114,7 @@ func (sess *session) submit(problem string, path string, language string) (id st
 		return
 	}
 
-	wr, err := os.Create("first_submission.html")
-	defer wr.Close()
-	if err != nil {
-		return
-	}
-	rd := io.TeeReader(resp.Body, wr)
-
-	id, err = submissionID(rd)
+	id, err = submissionID(resp.Body)
 
 	if err != nil {
 		err = errors.New(fmt.Sprintf("%s: Submission ID not retrieved",

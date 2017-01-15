@@ -15,5 +15,5 @@ $ go get github.com/emakryo/adcoter
 ## Usage
 
 ```
-$ adcoter [arc|abc|agc] [contest ID] [problem ID] [source]
+$ adcoter [-arc ID|-abc ID|-agc ID| -u url] [-p problem] [source]
 ```

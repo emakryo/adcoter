@@ -32,13 +32,12 @@ func parseArg() (arg argument) {
 	agc := flag.Int("agc", minf, "AGC")
 	url := flag.String("u", "", "URL for the contest")
 	prob := flag.String("p", "", "Problem ID")
-	lang := flag.String("l", "14", "Language ID")
+	lang := flag.String("l", "", "Language ID")
 
 	flag.Parse()
 
 	arg.verbose = *verb
 	arg.debug = *debug
-	arg.language = *lang
 
 	if flag.NArg() < 1 {
 		exitWithUsage("No source file")
@@ -97,5 +96,40 @@ func parseArg() (arg argument) {
 	}
 
 	arg.source = flag.Arg(0)
+
+	arg.language = *lang
+	if *lang == "" {
+		arg.language = detectLanguage(arg.source)
+	} else {
+		arg.language = *lang
+	}
+
 	return arg
+}
+
+var languages = []struct{
+	language string
+	id string
+	suffix string
+}{
+	{"G++", "14", ".cpp"},
+	{"GHC", "11", ".hs"},
+}
+
+func detectLanguage(filename string) (id string) {
+	for _, l := range languages {
+		if strings.HasSuffix(filename, l.suffix){
+			return l.id
+		}
+	}
+
+	printAvailable();
+	os.Exit(255);
+	return "";
+}
+
+func printAvailable() {
+	for _, l := range languages {
+		fmt.Printf("%s: %s\n", l.language, l.suffix)
+	}
 }

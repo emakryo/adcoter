@@ -14,6 +14,7 @@ type argument struct {
 	debug   bool
 	problem string
 	source  string
+	language string
 }
 
 func exitWithUsage(err interface{}) {
@@ -31,11 +32,13 @@ func parseArg() (arg argument) {
 	agc := flag.Int("agc", minf, "AGC")
 	url := flag.String("u", "", "URL for the contest")
 	prob := flag.String("p", "", "Problem ID")
+	lang := flag.String("l", "14", "Language ID")
 
 	flag.Parse()
 
 	arg.verbose = *verb
 	arg.debug = *debug
+	arg.language = *lang
 
 	if flag.NArg() < 1 {
 		exitWithUsage("No source file")

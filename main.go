@@ -60,7 +60,7 @@ func main() {
 		fatal(err)
 	}
 
-	submissionID, err := sess.submit(arg.problem, arg.source, "14")
+	submissionID, err := sess.submit(arg.problem, arg.source, arg.language)
 	if err != nil {
 		fatal(err)
 	}

@@ -52,7 +52,7 @@ func (sess *session) retrieveTaskID(problem string) (id string, err error) {
 		return
 	}
 
-	parsed, err := url.Parse(sess.url + submitURL)
+	parsed, err := url.Parse(sess.raw_url + submitURL)
 	if err != nil {
 		return
 	}
@@ -62,7 +62,7 @@ func (sess *session) retrieveTaskID(problem string) (id string, err error) {
 	}
 	ids, ok := vals["task_id"]
 	if !ok {
-		err = errors.New(fmt.Sprintf("%s/assignments : Parse error", sess.url))
+		err = errors.New(fmt.Sprintf("%s/assignments : Parse error", sess.raw_url))
 		return
 	}
 	return ids[0], nil

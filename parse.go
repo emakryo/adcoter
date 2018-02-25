@@ -9,11 +9,11 @@ import (
 )
 
 type argument struct {
-	url     string
-	verbose bool
-	debug   bool
-	problem string
-	source  string
+	url      string
+	verbose  bool
+	debug    bool
+	problem  string
+	source   string
 	language string
 }
 
@@ -107,25 +107,25 @@ func parseArg() (arg argument) {
 	return arg
 }
 
-var languages = []struct{
+var languages = []struct {
 	language string
-	id string
-	suffix string
+	id       string
+	suffix   string
 }{
-	{"G++", "14", ".cpp"},
-	{"GHC", "11", ".hs"},
+	{"C++14 (GCC 5.4.1)", "3003", ".cpp"},
+	{"Haskell (GHC 7.10.3)", "3014", ".hs"},
 }
 
 func detectLanguage(filename string) (id string) {
 	for _, l := range languages {
-		if strings.HasSuffix(filename, l.suffix){
+		if strings.HasSuffix(filename, l.suffix) {
 			return l.id
 		}
 	}
 
-	printAvailable();
-	os.Exit(255);
-	return "";
+	printAvailable()
+	os.Exit(255)
+	return ""
 }
 
 func printAvailable() {

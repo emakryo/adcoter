@@ -15,14 +15,16 @@ import (
 )
 
 type session struct {
-	client *http.Client
-	url    string
+	client  *http.Client
+	url     *url.URL
+	raw_url string
 }
 
 var cacheFile string
 
 func newSession(contestURL string) (sess session, err error) {
-	sess.url = contestURL
+	sess.raw_url = contestURL
+	sess.url, err = url.Parse(sess.raw_url)
 	if err != nil {
 		return
 	}
@@ -53,16 +55,22 @@ func newSession(contestURL string) (sess session, err error) {
 		}
 	}
 
+	cookies := sess.client.Jar.Cookies(sess.url)
+	logger.Printf("Cookies")
+	for i := 0; i < len(cookies); i++ {
+		logger.Printf(cookies[i].String())
+	}
+
 	return sess, nil
 }
 
 func (sess *session) get(path string) (resp *http.Response, err error) {
-	resp, err = sess.client.Get(sess.url + path)
+	resp, err = sess.client.Get(sess.raw_url + path)
 	return
 }
 
 func (sess *session) postForm(path string, values url.Values) (resp *http.Response, err error) {
-	resp, err = sess.client.PostForm(sess.url+path, values)
+	resp, err = sess.client.PostForm(sess.raw_url+path, values)
 	return
 }
 
@@ -129,11 +137,7 @@ func (sess *session) login() (err error) {
 }
 
 func (sess *session) saveCookies() {
-	parsed, err := url.Parse(sess.url)
-	if err != nil {
-		fatal(err)
-	}
-	cookies := sess.client.Jar.Cookies(parsed)
+	cookies := sess.client.Jar.Cookies(sess.url)
 	marshaled, err := json.Marshal(cookies)
 	if err != nil {
 		fatal(err)
@@ -156,7 +160,6 @@ func (sess *session) loadCookies() (err error) {
 		//log.Println(err);
 		return
 	}
-	parsed, err := url.Parse(sess.url)
-	sess.client.Jar.SetCookies(parsed, cookies)
+	sess.client.Jar.SetCookies(sess.url, cookies)
 	return nil
 }

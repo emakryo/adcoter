@@ -1,22 +1,27 @@
-package main
+package old
 
 import (
 	"errors"
 	"golang.org/x/net/html"
-	"io"
+	//"io"
 	"strings"
 	"github.com/emakryo/adcoter/contest"
 )
 
-func (sess *session) status(id string) (stat contest.Status, err error) {
-	resp, err := sess.get("/submissions/" + id)
+func (c *Contest) Status(id string) (stat contest.Status, err error) {
+	resp, err := c.sess.get("/submissions/" + id)
 	if err != nil {
 		return
 	}
 	defer resp.Body.Close()
 
-	rd := io.TeeReader(resp.Body, debug_out)
-	node, err := html.Parse(rd)
+	//rd := io.TeeReader(resp.Body, debug_out)
+	//node, err := html.Parse(rd)
+	//if err != nil {
+	//	return
+	//}
+
+	node, err := html.Parse(resp.Body)
 	if err != nil {
 		return
 	}

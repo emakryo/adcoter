@@ -36,12 +36,8 @@ func main() {
 	logger = log.New(out, "", log.LstdFlags|log.Lshortfile)
 
 	logger.Println(arg.contest.GetURL(), arg.answer.Id)
-	sess, err := newSession(arg.contest.GetURL())
-	if err != nil {
-		fatal(err)
-	}
 
-	submissionID, err := sess.submit(arg.answer.Id, arg.answer.Source, arg.answer.Language)
+	submissionID, err := arg.contest.Submit(arg.answer)
 	if err != nil {
 		fatal(err)
 	}
@@ -64,7 +60,7 @@ func main() {
 				fatal(err0)
 			}
 		}
-		stat, err = sess.status(submissionID)
+		stat, err = arg.contest.Status(submissionID)
 		fmt.Printf(".")
 		logger.Println(err)
 		time.Sleep(time.Second)

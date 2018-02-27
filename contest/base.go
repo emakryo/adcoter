@@ -4,21 +4,12 @@ import "fmt"
 
 type Contest interface {
 	GetURL() string
-	Login()
 	Submit(Answer) (string, error)
 	Status(string) (Status, error)
 }
 
 type Base struct {
 	url string
-}
-
-func NewContest(url string) *Base {
-	return &Base{url}
-}
-
-func (c Base) GetURL() string {
-	return c.url
 }
 
 type Answer struct {

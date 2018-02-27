@@ -90,14 +90,18 @@ func parseArgs() (arg argument) {
 		exitWithUsage("Beta version is not implemented yet");
 	} else {
 		var c *old.Contest
+		var err error
 		if *url != "" {
-			c = &old.Contest{contest.NewContest(*url)}
+			c, err = old.NewContest(*url)
 		} else if *arc > 0 {
-			c = old.NewContestFromId("arc", *arc)
+			c, err = old.NewContestFromId("arc", *arc)
 		} else if *abc > 0 {
-			c = old.NewContestFromId("abc", *abc)
+			c, err = old.NewContestFromId("abc", *abc)
 		} else if *agc > 0 {
-			c = old.NewContestFromId("agc", *agc)
+			c, err = old.NewContestFromId("agc", *agc)
+		}
+		if err != nil {
+			fatal(err)
 		}
 		arg.contest = c
 	}

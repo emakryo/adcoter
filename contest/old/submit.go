@@ -1,4 +1,4 @@
-package main
+package old
 
 import (
 	"errors"
@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/url"
 	"strings"
+	"github.com/emakryo/adcoter/contest"
 )
 
 func find(attrs []html.Attribute, key string) (val string) {
@@ -68,8 +69,8 @@ func (sess *session) retrieveTaskID(problem string) (id string, err error) {
 	return ids[0], nil
 }
 
-func (sess *session) submit(problem string, path string, language string) (id string, err error) {
-	resp, err := sess.get("/submit")
+func (c *Contest) Submit(ans contest.Answer) (id string, err error) {
+	resp, err := c.sess.get("/submit")
 	if err != nil {
 		return
 	}
@@ -84,16 +85,16 @@ func (sess *session) submit(problem string, path string, language string) (id st
 		}
 	}
 	if session == "" {
-		err = errors.New(fmt.Sprintf("%s/submit : Parse Failure", sess.url))
+		err = errors.New(fmt.Sprintf("%s/submit : Parse Failure", c.url))
 		return
 	}
 
-	content, err := ioutil.ReadFile(path)
+	content, err := ioutil.ReadFile(ans.Source)
 	if err != nil {
 		return
 	}
 
-	taskID, err := sess.retrieveTaskID(problem)
+	taskID, err := c.sess.retrieveTaskID(ans.Id)
 	if err != nil {
 		return
 	}
@@ -101,16 +102,16 @@ func (sess *session) submit(problem string, path string, language string) (id st
 	data := url.Values{}
 	data.Add("__session", session)
 	data.Add("task_id", taskID)
-	data.Add("language_id_"+taskID, language)
+	data.Add("language_id_"+taskID, ans.Language)
 	data.Add("source_code", string(content))
 
-	resp, err = sess.postForm("/submit", data)
+	resp, err = c.sess.postForm("/submit", data)
 	if err != nil {
 		return
 	}
 	defer resp.Body.Close()
 	if resp.Request.URL.Path != "/submissions/me" {
-		err = errors.New(fmt.Sprintf("%s: Submission failure", path))
+		err = errors.New(fmt.Sprintf("%s: Submission failure", ans.Source))
 		return
 	}
 
@@ -122,7 +123,7 @@ func (sess *session) submit(problem string, path string, language string) (id st
 		return
 	}
 
-	logger.Printf("submission ID: %s\n", id)
+	//logger.Printf("submission ID: %s\n", id)
 
 	return id, nil
 }

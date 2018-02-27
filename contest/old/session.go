@@ -1,4 +1,4 @@
-package main
+package old
 
 import (
 	"encoding/json"
@@ -51,15 +51,15 @@ func newSession(contestURL string) (sess session, err error) {
 	if err != nil {
 		err = sess.login()
 		if err != nil {
-			fatal(err)
+			return
 		}
 	}
 
-	cookies := sess.client.Jar.Cookies(sess.url)
-	logger.Printf("Cookies")
-	for i := 0; i < len(cookies); i++ {
-		logger.Printf(cookies[i].String())
-	}
+	//cookies := sess.client.Jar.Cookies(sess.url)
+	//logger.Printf("Cookies")
+	//for i := 0; i < len(cookies); i++ {
+	//	logger.Printf(cookies[i].String())
+	//}
 
 	return sess, nil
 }
@@ -108,7 +108,7 @@ func (sess *session) authorize() (err error) {
 	if !sess.loginSuccess() {
 		return errors.New("Invalid cookies")
 	}
-	logger.Println("Login with cached cookies")
+	//logger.Println("Login with cached cookies")
 	return nil
 }
 
@@ -136,16 +136,17 @@ func (sess *session) login() (err error) {
 	return nil
 }
 
-func (sess *session) saveCookies() {
+func (sess *session) saveCookies() error {
 	cookies := sess.client.Jar.Cookies(sess.url)
 	marshaled, err := json.Marshal(cookies)
 	if err != nil {
-		fatal(err)
+		return err
 	}
 	err = ioutil.WriteFile(cacheFile, marshaled, 0400)
 	if err != nil {
-		fatal(err)
+		return err
 	}
+	return nil
 }
 
 func (sess *session) loadCookies() (err error) {

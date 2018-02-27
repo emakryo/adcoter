@@ -2,26 +2,28 @@ package old
 
 import (
 	"fmt"
-	"github.com/emakryo/adcoter/contest"
 )
 
 type Contest struct {
-	*contest.Base
+	url string
+	sess *session
+
 }
 
-func NewContestFromId(t string, id int) *Contest {
-	return &Contest{contest.NewContest(
-		fmt.Sprintf("https://%s%03d.contest.atcoder.jp", t, id),
-	)}
+func NewContest(url string) (c *Contest, err error) {
+	c = &Contest{
+		url: url,
+		sess: nil,
+	}
+	sess, err := newSession(url)
+	c.sess = &sess
+	return c, err
 }
 
-func (c *Contest) Login() {
+func (c Contest) GetURL() string {
+	return c.url
 }
 
-func (c *Contest) Submit(answer contest.Answer) (id string, err error) {
-	return
-}
-
-func (c *Contest) Status(id string) (s contest.Status, err error) {
-	return
+func NewContestFromId(t string, id int) (c *Contest, err error) {
+	return NewContest(fmt.Sprintf("https://%s%03d.contest.atcoder.jp", t, id))
 }

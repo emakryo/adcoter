@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"time"
+	"github.com/emakryo/adcoter/contest"
 )
 
 var program string
@@ -18,30 +19,10 @@ func fatal(v interface{}) {
 	os.Exit(1)
 }
 
-func output(stat status) {
-	logger.Printf("%d test cases\n", len(stat.caseName))
-	ac := true
-	for _, s := range stat.caseState {
-		if s != "AC" {
-			ac = false
-			break
-		}
-	}
-
-	if ac {
-		fmt.Printf("AC (%d cases)\n", len(stat.caseState))
-		return
-	}
-
-	for i, n := range stat.caseName {
-		fmt.Printf("%s\t%s\n", stat.caseState[i], n)
-	}
-}
-
 func main() {
 	program = os.Args[0]
 
-	var arg = parseArg()
+	var arg = parseArgs()
 	var out io.Writer
 	var err error
 	if arg.verbose {
@@ -54,19 +35,19 @@ func main() {
 	}
 	logger = log.New(out, "", log.LstdFlags|log.Lshortfile)
 
-	logger.Println(arg.url, arg.problem)
-	sess, err := newSession(arg.url)
+	logger.Println(arg.contest.GetURL(), arg.answer.Id)
+	sess, err := newSession(arg.contest.GetURL())
 	if err != nil {
 		fatal(err)
 	}
 
-	submissionID, err := sess.submit(arg.problem, arg.source, arg.language)
+	submissionID, err := sess.submit(arg.answer.Id, arg.answer.Source, arg.answer.Language)
 	if err != nil {
 		fatal(err)
 	}
 
 	fmt.Printf("Judging")
-	var stat status
+	var stat contest.Status
 	var cnt = 0
 	debug_out, err = os.Create(os.DevNull)
 	if err != nil {
@@ -89,5 +70,5 @@ func main() {
 		time.Sleep(time.Second)
 	}
 	fmt.Printf("\n")
-	output(stat)
+	stat.Output()
 }

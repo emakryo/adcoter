@@ -5,14 +5,10 @@ import (
 	"golang.org/x/net/html"
 	"io"
 	"strings"
+	"github.com/emakryo/adcoter/contest"
 )
 
-type status struct {
-	caseName  []string
-	caseState []string
-}
-
-func (sess *session) status(id string) (stat status, err error) {
+func (sess *session) status(id string) (stat contest.Status, err error) {
 	resp, err := sess.get("/submissions/" + id)
 	if err != nil {
 		return
@@ -27,7 +23,7 @@ func (sess *session) status(id string) (stat status, err error) {
 	return parseSubmission(node)
 }
 
-func parseSubmission(node *html.Node) (stat status, err error) {
+func parseSubmission(node *html.Node) (stat contest.Status, err error) {
 	switch node.Type {
 	case html.DocumentNode:
 		for next := node.FirstChild; next != nil; next = next.NextSibling {
@@ -57,7 +53,7 @@ func parseSubmission(node *html.Node) (stat status, err error) {
 	return stat, errors.New("Not found")
 }
 
-func parseTable(node *html.Node) (stat status, err error) {
+func parseTable(node *html.Node) (stat contest.Status, err error) {
 	var tbody *html.Node
 	for next := node.FirstChild; next != nil; next = next.NextSibling {
 		if next.Type == html.ElementNode && next.Data == "tbody" {
@@ -84,13 +80,13 @@ func parseTable(node *html.Node) (stat status, err error) {
 				return stat, errors.New("No items in td")
 			}
 			if col == 0 {
-				stat.caseName = append(stat.caseName, td.FirstChild.Data)
+				stat.CaseName = append(stat.CaseName, td.FirstChild.Data)
 			}
 			if col == 1 {
 				if td.FirstChild.FirstChild == nil {
 					return stat, errors.New("Invalid state")
 				}
-				stat.caseState = append(stat.caseState, td.FirstChild.FirstChild.Data)
+				stat.CaseState = append(stat.CaseState, td.FirstChild.FirstChild.Data)
 			}
 			col += 1
 		}

@@ -1,29 +1,29 @@
 package old
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
-	"net/http/cookiejar"
-	"os"
-	"os/user"
-	"encoding/json"
 	"github.com/dgiagio/getpass"
 	"golang.org/x/net/html"
 	"io/ioutil"
+	"net/http"
+	"net/http/cookiejar"
 	"net/url"
+	"os"
+	"os/user"
 )
 
 type Contest struct {
-	client  *http.Client
-	url     *url.URL
+	client     *http.Client
+	url        *url.URL
 	cookiePath string
 }
 
 func New(rawurl string) (c *Contest, err error) {
 	c = &Contest{
 		client: nil,
-		url: nil,
+		url:    nil,
 	}
 	c.url, err = url.Parse(rawurl)
 	if err != nil {
@@ -64,7 +64,7 @@ func NewFromId(t string, id int) (c *Contest, err error) {
 }
 
 func (c *Contest) get(path string) (resp *http.Response, err error) {
-	resp, err = c.client.Get(c.url.String()+path)
+	resp, err = c.client.Get(c.url.String() + path)
 	return
 }
 

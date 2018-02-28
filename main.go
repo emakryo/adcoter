@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
-	"path"
-	"time"
-	"strings"
 	"github.com/emakryo/adcoter/contest"
 	"github.com/emakryo/adcoter/contest/old"
+	"os"
+	"path"
+	"strings"
+	"time"
 )
 
 var program string
@@ -77,8 +77,8 @@ func printAvailable() {
 type argument struct {
 	contest contest.Contest
 	answer  contest.Answer
-	verbose  bool
-	debug    bool
+	verbose bool
+	debug   bool
 }
 
 func parseArgs() (arg argument) {
@@ -113,7 +113,7 @@ func parseArgs() (arg argument) {
 	}
 
 	if *beta {
-		exitWithUsage("Beta version is not implemented yet");
+		exitWithUsage("Beta version is not implemented yet")
 	} else {
 		var c *old.Contest
 		var err error
@@ -153,8 +153,8 @@ func parseArgs() (arg argument) {
 	}
 
 	arg.answer = contest.Answer{
-		Id: id,
-		Source: source,
+		Id:       id,
+		Source:   source,
 		Language: language,
 	}
 

@@ -3,12 +3,12 @@ package old
 import (
 	"errors"
 	"fmt"
+	"github.com/emakryo/adcoter/contest"
 	"golang.org/x/net/html"
 	"io"
 	"io/ioutil"
 	"net/url"
 	"strings"
-	"github.com/emakryo/adcoter/contest"
 )
 
 func (c *Contest) Submit(ans contest.Answer) (id string, err error) {

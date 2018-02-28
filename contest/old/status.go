@@ -2,9 +2,9 @@ package old
 
 import (
 	"errors"
+	"github.com/emakryo/adcoter/contest"
 	"golang.org/x/net/html"
 	"strings"
-	"github.com/emakryo/adcoter/contest"
 )
 
 func (c *Contest) Status(id string) (stat contest.Status, err error) {

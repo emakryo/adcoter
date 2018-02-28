@@ -8,9 +8,9 @@ type Contest interface {
 }
 
 type Answer struct {
-	Id string
+	Id       string
 	Language string
-	Source string
+	Source   string
 }
 
 type Status struct {
@@ -24,7 +24,6 @@ func (stat *Status) Add(name, state string) {
 }
 
 func (stat Status) Output() {
-//	logger.Printf("%d test cases\n", len(stat.caseName))
 	ac := true
 	for _, s := range stat.caseStates {
 		if s != "AC" {

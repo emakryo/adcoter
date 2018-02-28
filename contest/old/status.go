@@ -3,23 +3,16 @@ package old
 import (
 	"errors"
 	"golang.org/x/net/html"
-	//"io"
 	"strings"
 	"github.com/emakryo/adcoter/contest"
 )
 
 func (c *Contest) Status(id string) (stat contest.Status, err error) {
-	resp, err := c.sess.get("/submissions/" + id)
+	resp, err := c.get("/submissions/" + id)
 	if err != nil {
 		return
 	}
 	defer resp.Body.Close()
-
-	//rd := io.TeeReader(resp.Body, debug_out)
-	//node, err := html.Parse(rd)
-	//if err != nil {
-	//	return
-	//}
 
 	node, err := html.Parse(resp.Body)
 	if err != nil {
@@ -77,6 +70,7 @@ func parseTable(node *html.Node) (stat contest.Status, err error) {
 		if tr.FirstChild == nil {
 			return stat, errors.New("No column in the row")
 		}
+		var state, name string
 		for td := tr.FirstChild; td != nil; td = td.NextSibling {
 			if td.Type != html.ElementNode || td.Data != "td" {
 				continue
@@ -85,13 +79,14 @@ func parseTable(node *html.Node) (stat contest.Status, err error) {
 				return stat, errors.New("No items in td")
 			}
 			if col == 0 {
-				stat.CaseName = append(stat.CaseName, td.FirstChild.Data)
+				name = td.FirstChild.Data
 			}
 			if col == 1 {
 				if td.FirstChild.FirstChild == nil {
 					return stat, errors.New("Invalid state")
 				}
-				stat.CaseState = append(stat.CaseState, td.FirstChild.FirstChild.Data)
+				state = td.FirstChild.FirstChild.Data
+				stat.Add(name, state)
 			}
 			col += 1
 		}

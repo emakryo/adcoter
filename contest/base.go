@@ -3,13 +3,8 @@ package contest
 import "fmt"
 
 type Contest interface {
-	GetURL() string
 	Submit(Answer) (string, error)
 	Status(string) (Status, error)
-}
-
-type Base struct {
-	url string
 }
 
 type Answer struct {
@@ -19,14 +14,19 @@ type Answer struct {
 }
 
 type Status struct {
-	CaseName  []string
-	CaseState []string
+	caseNames  []string
+	caseStates []string
+}
+
+func (stat *Status) Add(name, state string) {
+	stat.caseNames = append(stat.caseNames, name)
+	stat.caseStates = append(stat.caseStates, state)
 }
 
 func (stat Status) Output() {
 //	logger.Printf("%d test cases\n", len(stat.caseName))
 	ac := true
-	for _, s := range stat.CaseState {
+	for _, s := range stat.caseStates {
 		if s != "AC" {
 			ac = false
 			break
@@ -34,12 +34,11 @@ func (stat Status) Output() {
 	}
 
 	if ac {
-		fmt.Printf("AC (%d cases)\n", len(stat.CaseState))
+		fmt.Printf("AC (%d cases)\n", len(stat.caseStates))
 		return
 	}
 
-	for i, n := range stat.CaseName {
-		fmt.Printf("%s\t%s\n", stat.CaseState[i], n)
+	for i, n := range stat.caseNames {
+		fmt.Printf("%s\t%s\n", stat.caseStates[i], n)
 	}
 }
-

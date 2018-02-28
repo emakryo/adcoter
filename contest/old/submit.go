@@ -11,6 +11,61 @@ import (
 	"github.com/emakryo/adcoter/contest"
 )
 
+func (c *Contest) Submit(ans contest.Answer) (id string, err error) {
+	resp, err := c.get("/submit")
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	tokenizer := html.NewTokenizer(resp.Body)
+	var tok html.Token
+	var session string
+	for ; tokenizer.Next() != html.ErrorToken; tok = tokenizer.Token() {
+		if tok.Type == html.StartTagToken && tok.Data == "input" &&
+			find(tok.Attr, "name") == "__session" {
+			session = find(tok.Attr, "value")
+		}
+	}
+	if session == "" {
+		err = errors.New(fmt.Sprintf("%s/submit : Parse Failure", c.url))
+		return
+	}
+
+	content, err := ioutil.ReadFile(ans.Source)
+	if err != nil {
+		return
+	}
+
+	taskID, err := c.retrieveTaskID(ans.Id)
+	if err != nil {
+		return
+	}
+
+	data := url.Values{}
+	data.Add("__session", session)
+	data.Add("task_id", taskID)
+	data.Add("language_id_"+taskID, ans.Language)
+	data.Add("source_code", string(content))
+
+	resp, err = c.postForm("/submit", data)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	if resp.Request.URL.Path != "/submissions/me" {
+		err = errors.New(fmt.Sprintf("%s: Submission failure", ans.Source))
+		return
+	}
+
+	id, err = submissionID(resp.Body)
+	if err != nil {
+		err = errors.New(fmt.Sprintf("%s: Submission ID not retrieved",
+			resp.Request.URL))
+		return
+	}
+	return id, nil
+}
+
 func find(attrs []html.Attribute, key string) (val string) {
 	for _, attr := range attrs {
 		if attr.Key == key {
@@ -20,8 +75,8 @@ func find(attrs []html.Attribute, key string) (val string) {
 	return ""
 }
 
-func (sess *session) retrieveTaskID(problem string) (id string, err error) {
-	resp, err := sess.get("/assignments")
+func (c *Contest) retrieveTaskID(problem string) (id string, err error) {
+	resp, err := c.get("/assignments")
 	if err != nil {
 		return
 	}
@@ -53,79 +108,16 @@ func (sess *session) retrieveTaskID(problem string) (id string, err error) {
 		return
 	}
 
-	parsed, err := url.Parse(sess.raw_url + submitURL)
+	parsed, err := url.Parse(submitURL)
 	if err != nil {
 		return
 	}
-	vals, err := url.ParseQuery(parsed.RawQuery)
-	if err != nil {
-		return
-	}
-	ids, ok := vals["task_id"]
+	ids, ok := parsed.Query()["task_id"]
 	if !ok {
-		err = errors.New(fmt.Sprintf("%s/assignments : Parse error", sess.raw_url))
+		err = errors.New(fmt.Sprintf("%s/assignments : Parse error", c.url))
 		return
 	}
 	return ids[0], nil
-}
-
-func (c *Contest) Submit(ans contest.Answer) (id string, err error) {
-	resp, err := c.sess.get("/submit")
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	tokenizer := html.NewTokenizer(resp.Body)
-	var tok html.Token
-	var session string
-	for ; tokenizer.Next() != html.ErrorToken; tok = tokenizer.Token() {
-		if tok.Type == html.StartTagToken && tok.Data == "input" &&
-			find(tok.Attr, "name") == "__session" {
-			session = find(tok.Attr, "value")
-		}
-	}
-	if session == "" {
-		err = errors.New(fmt.Sprintf("%s/submit : Parse Failure", c.url))
-		return
-	}
-
-	content, err := ioutil.ReadFile(ans.Source)
-	if err != nil {
-		return
-	}
-
-	taskID, err := c.sess.retrieveTaskID(ans.Id)
-	if err != nil {
-		return
-	}
-
-	data := url.Values{}
-	data.Add("__session", session)
-	data.Add("task_id", taskID)
-	data.Add("language_id_"+taskID, ans.Language)
-	data.Add("source_code", string(content))
-
-	resp, err = c.sess.postForm("/submit", data)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	if resp.Request.URL.Path != "/submissions/me" {
-		err = errors.New(fmt.Sprintf("%s: Submission failure", ans.Source))
-		return
-	}
-
-	id, err = submissionID(resp.Body)
-
-	if err != nil {
-		err = errors.New(fmt.Sprintf("%s: Submission ID not retrieved",
-			resp.Request.URL))
-		return
-	}
-
-	//logger.Printf("submission ID: %s\n", id)
-
-	return id, nil
 }
 
 func submissionID(body io.Reader) (id string, err error) {

@@ -2,13 +2,13 @@ package old
 
 import (
 	"errors"
-	"github.com/emakryo/adcoter/contest"
 	"golang.org/x/net/html"
 	"strings"
+	"github.com/emakryo/adcoter/status"
 )
 
-func (c *Contest) Status(id string) (stat contest.Status, err error) {
-	resp, err := c.get("/submissions/" + id)
+func (sess *Session) Status(id string) (stat status.Status, err error) {
+	resp, err := sess.get("/submissions/" + id)
 	if err != nil {
 		return
 	}
@@ -21,7 +21,7 @@ func (c *Contest) Status(id string) (stat contest.Status, err error) {
 	return parseSubmission(node)
 }
 
-func parseSubmission(node *html.Node) (stat contest.Status, err error) {
+func parseSubmission(node *html.Node) (stat status.Status, err error) {
 	switch node.Type {
 	case html.DocumentNode:
 		for next := node.FirstChild; next != nil; next = next.NextSibling {
@@ -51,7 +51,7 @@ func parseSubmission(node *html.Node) (stat contest.Status, err error) {
 	return stat, errors.New("Not found")
 }
 
-func parseTable(node *html.Node) (stat contest.Status, err error) {
+func parseTable(node *html.Node) (stat status.Status, err error) {
 	var tbody *html.Node
 	for next := node.FirstChild; next != nil; next = next.NextSibling {
 		if next.Type == html.ElementNode && next.Data == "tbody" {

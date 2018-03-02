@@ -1,17 +1,6 @@
-package contest
+package status
 
 import "fmt"
-
-type Contest interface {
-	Submit(Answer) (string, error)
-	Status(string) (Status, error)
-}
-
-type Answer struct {
-	Id       string
-	Language string
-	Source   string
-}
 
 type Status struct {
 	caseNames  []string

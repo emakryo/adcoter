@@ -3,7 +3,7 @@ package old
 import (
 	"errors"
 	"fmt"
-	"github.com/emakryo/adcoter/contest"
+	"github.com/emakryo/adcoter/answer"
 	"golang.org/x/net/html"
 	"io"
 	"io/ioutil"
@@ -11,8 +11,8 @@ import (
 	"strings"
 )
 
-func (c *Contest) Submit(ans contest.Answer) (id string, err error) {
-	resp, err := c.get("/submit")
+func (sess *Session) Submit(ans answer.Answer) (id string, err error) {
+	resp, err := sess.get("/submit")
 	if err != nil {
 		return
 	}
@@ -27,7 +27,7 @@ func (c *Contest) Submit(ans contest.Answer) (id string, err error) {
 		}
 	}
 	if session == "" {
-		err = errors.New(fmt.Sprintf("%s/submit : Parse Failure", c.url))
+		err = errors.New(fmt.Sprintf("%s/submit : Parse Failure", sess.url))
 		return
 	}
 
@@ -36,7 +36,7 @@ func (c *Contest) Submit(ans contest.Answer) (id string, err error) {
 		return
 	}
 
-	taskID, err := c.retrieveTaskID(ans.Id)
+	taskID, err := sess.retrieveTaskID(ans.Id)
 	if err != nil {
 		return
 	}
@@ -47,7 +47,7 @@ func (c *Contest) Submit(ans contest.Answer) (id string, err error) {
 	data.Add("language_id_"+taskID, ans.Language)
 	data.Add("source_code", string(content))
 
-	resp, err = c.postForm("/submit", data)
+	resp, err = sess.postForm("/submit", data)
 	if err != nil {
 		return
 	}
@@ -75,8 +75,8 @@ func find(attrs []html.Attribute, key string) (val string) {
 	return ""
 }
 
-func (c *Contest) retrieveTaskID(problem string) (id string, err error) {
-	resp, err := c.get("/assignments")
+func (sess *Session) retrieveTaskID(problem string) (id string, err error) {
+	resp, err := sess.get("/assignments")
 	if err != nil {
 		return
 	}
@@ -114,7 +114,7 @@ func (c *Contest) retrieveTaskID(problem string) (id string, err error) {
 	}
 	ids, ok := parsed.Query()["task_id"]
 	if !ok {
-		err = errors.New(fmt.Sprintf("%s/assignments : Parse error", c.url))
+		err = errors.New(fmt.Sprintf("%s/assignments : Parse error", sess.url))
 		return
 	}
 	return ids[0], nil

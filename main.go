@@ -3,12 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/emakryo/adcoter/contest"
-	"github.com/emakryo/adcoter/contest/old"
 	"os"
 	"path"
 	"strings"
 	"time"
+	"github.com/emakryo/adcoter/answer"
+	"github.com/emakryo/adcoter/status"
+	"github.com/emakryo/adcoter/session/beta"
+	"github.com/emakryo/adcoter/session/old"
 )
 
 var program string
@@ -28,13 +30,13 @@ func main() {
 	program = os.Args[0]
 	var arg = parseArgs()
 
-	submissionId, err := arg.contest.Submit(arg.answer)
+	submissionId, err := arg.contest.Submit(*arg.answer)
 	if err != nil {
 		fatal(err)
 	}
 
 	fmt.Printf("Judging")
-	var stat contest.Status
+	var stat status.Status
 	for {
 		stat, err = arg.contest.Status(submissionId)
 		if err == nil {
@@ -75,14 +77,15 @@ func printAvailable() {
 }
 
 type argument struct {
-	contest contest.Contest
-	answer  contest.Answer
+	contest *Contest
+	answer  *answer.Answer
 	verbose bool
 	debug   bool
+	beta bool
 }
 
 func parseArgs() (arg argument) {
-	beta := flag.Bool("beta", false, "use beta.atcoder.jp")
+	isBeta := flag.Bool("beta", false, "use beta.atcoder.jp")
 	arc := flag.Int("arc", -1, "ARC")
 	abc := flag.Int("abc", -1, "ABC")
 	agc := flag.Int("agc", -1, "AGC")
@@ -112,24 +115,34 @@ func parseArgs() (arg argument) {
 		exitWithUsage("No contest is specified")
 	}
 
-	if *beta {
-		exitWithUsage("Beta version is not implemented yet")
+	var contest_type string
+	var contest_id int
+	if *arc > 0 {
+		contest_type = "arc"
+		contest_id = *arc
+	} else if *abc > 0 {
+		contest_type = "abc"
+		contest_id = *abc
+	} else if *agc > 0 {
+		contest_type = "agc"
+		contest_id = *agc
+	}
+
+	var rawurl string
+	arg.beta = *isBeta
+	if *url == ""{
+		if *isBeta {
+			rawurl = beta.ContestURL(contest_type, contest_id)
+		} else {
+			rawurl = old.ContestURL(contest_type, contest_id)
+		}
 	} else {
-		var c *old.Contest
-		var err error
-		if *url != "" {
-			c, err = old.New(*url)
-		} else if *arc > 0 {
-			c, err = old.NewFromId("arc", *arc)
-		} else if *abc > 0 {
-			c, err = old.NewFromId("abc", *abc)
-		} else if *agc > 0 {
-			c, err = old.NewFromId("agc", *agc)
-		}
-		if err != nil {
-			fatal(err)
-		}
-		arg.contest = c
+		rawurl = *url
+	}
+	var err error
+	arg.contest, err = newContest(rawurl, *isBeta)
+	if err != nil {
+		fatal(err)
 	}
 
 	if flag.NArg() < 1 {
@@ -152,7 +165,7 @@ func parseArgs() (arg argument) {
 		language = detectLanguage(source)
 	}
 
-	arg.answer = contest.Answer{
+	arg.answer = &answer.Answer{
 		Id:       id,
 		Source:   source,
 		Language: language,

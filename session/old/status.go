@@ -2,9 +2,9 @@ package old
 
 import (
 	"errors"
+	"github.com/emakryo/adcoter/status"
 	"golang.org/x/net/html"
 	"strings"
-	"github.com/emakryo/adcoter/status"
 )
 
 func (sess *Session) Status(id string) (stat status.Status, err error) {

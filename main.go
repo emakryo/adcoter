@@ -3,14 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/emakryo/adcoter/answer"
+	"github.com/emakryo/adcoter/session/beta"
+	"github.com/emakryo/adcoter/session/old"
+	"github.com/emakryo/adcoter/status"
 	"os"
 	"path"
 	"strings"
 	"time"
-	"github.com/emakryo/adcoter/answer"
-	"github.com/emakryo/adcoter/status"
-	"github.com/emakryo/adcoter/session/beta"
-	"github.com/emakryo/adcoter/session/old"
 )
 
 var program string
@@ -81,7 +81,7 @@ type argument struct {
 	answer  *answer.Answer
 	verbose bool
 	debug   bool
-	beta bool
+	beta    bool
 }
 
 func parseArgs() (arg argument) {
@@ -130,7 +130,7 @@ func parseArgs() (arg argument) {
 
 	var rawurl string
 	arg.beta = *isBeta
-	if *url == ""{
+	if *url == "" {
 		if *isBeta {
 			rawurl = beta.ContestURL(contest_type, contest_id)
 		} else {

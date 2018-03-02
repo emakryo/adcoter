@@ -5,4 +5,3 @@ type Answer struct {
 	Language string
 	Source   string
 }
-

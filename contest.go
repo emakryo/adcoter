@@ -3,17 +3,17 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"github.com/dgiagio/getpass"
-	"io/ioutil"
 	"fmt"
-	"net/http"
-	"os"
-	"os/user"
+	"github.com/dgiagio/getpass"
+	"github.com/emakryo/adcoter/answer"
 	"github.com/emakryo/adcoter/session"
 	"github.com/emakryo/adcoter/session/beta"
 	"github.com/emakryo/adcoter/session/old"
 	"github.com/emakryo/adcoter/status"
-	"github.com/emakryo/adcoter/answer"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"os/user"
 )
 
 type Contest struct {
@@ -108,6 +108,6 @@ func (c *Contest) Submit(ans answer.Answer) (id string, err error) {
 	return c.sess.Submit(ans)
 }
 
-func (c * Contest) Status(id string) (stat status.Status, err error) {
+func (c *Contest) Status(id string) (stat status.Status, err error) {
 	return c.sess.Status(id)
 }

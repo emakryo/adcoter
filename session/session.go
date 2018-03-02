@@ -1,9 +1,9 @@
 package session
 
 import (
-	"net/http"
-	"github.com/emakryo/adcoter/status"
 	"github.com/emakryo/adcoter/answer"
+	"github.com/emakryo/adcoter/status"
+	"net/http"
 )
 
 type Session interface {

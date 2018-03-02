@@ -1,16 +1,16 @@
 package beta
 
 import (
-	"net/url"
 	"net/http"
-//	"net/http/cookiejar"
+	"net/url"
+	//	"net/http/cookiejar"
 	"github.com/emakryo/adcoter/answer"
 	"github.com/emakryo/adcoter/status"
 )
 
 type Session struct {
 	client *http.Client
-	url *url.URL
+	url    *url.URL
 }
 
 func New(url string) (sess *Session, err error) {
@@ -25,7 +25,7 @@ func (sess *Session) SetCookies(cookies []*http.Cookie) {
 	sess.client.Jar.SetCookies(sess.url, cookies)
 }
 
-func (sess *Session) Cookies() []*http.Cookie{
+func (sess *Session) Cookies() []*http.Cookie {
 	return sess.client.Jar.Cookies(sess.url)
 }
 

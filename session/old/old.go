@@ -9,8 +9,8 @@ import (
 )
 
 type Session struct {
-	url *url.URL
-	client     *http.Client
+	url    *url.URL
+	client *http.Client
 }
 
 func New(rawurl string) (sess *Session, err error) {
@@ -24,7 +24,7 @@ func New(rawurl string) (sess *Session, err error) {
 		return
 	}
 	return &Session{
-		url: parsedUrl,
+		url:    parsedUrl,
 		client: &http.Client{Jar: jar},
 	}, nil
 }
@@ -37,7 +37,7 @@ func (sess *Session) SetCookies(cookies []*http.Cookie) {
 	sess.client.Jar.SetCookies(sess.url, cookies)
 }
 
-func (sess *Session) Cookies() []*http.Cookie{
+func (sess *Session) Cookies() []*http.Cookie {
 	return sess.client.Jar.Cookies(sess.url)
 }
 

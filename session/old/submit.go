@@ -27,7 +27,7 @@ func (sess *Session) Submit(ans answer.Answer) (id string, err error) {
 		}
 	}
 	if session == "" {
-		err = errors.New(fmt.Sprintf("%s/submit : Parse Failure", sess.url))
+		err = errors.New(fmt.Sprintf("%s/submit : Parse Failure", sess.Url))
 		return
 	}
 
@@ -114,7 +114,7 @@ func (sess *Session) retrieveTaskID(problem string) (id string, err error) {
 	}
 	ids, ok := parsed.Query()["task_id"]
 	if !ok {
-		err = errors.New(fmt.Sprintf("%s/assignments : Parse error", sess.url))
+		err = errors.New(fmt.Sprintf("%s/assignments : Parse error", sess.Url))
 		return
 	}
 	return ids[0], nil

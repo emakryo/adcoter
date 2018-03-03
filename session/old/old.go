@@ -4,49 +4,29 @@ import (
 	"fmt"
 	"golang.org/x/net/html"
 	"net/http"
-	"net/http/cookiejar"
 	"net/url"
+	"github.com/emakryo/adcoter/session"
 )
 
 type Session struct {
-	url    *url.URL
-	client *http.Client
+	*session.SessionBase
 }
 
-func New(rawurl string) (sess *Session, err error) {
-	parsedUrl, err := url.Parse(rawurl)
-	if err != nil {
-		return
-	}
-
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-		return
-	}
-	return &Session{
-		url:    parsedUrl,
-		client: &http.Client{Jar: jar},
-	}, nil
+func New(rawurl string) (*Session, error) {
+	sess, err := session.New(rawurl)
+	return &Session{sess}, err
 }
 
 func ContestURL(t string, id int) string {
 	return fmt.Sprintf("https://%s%03d.contest.atcoder.jp", t, id)
 }
 
-func (sess *Session) SetCookies(cookies []*http.Cookie) {
-	sess.client.Jar.SetCookies(sess.url, cookies)
-}
-
-func (sess *Session) Cookies() []*http.Cookie {
-	return sess.client.Jar.Cookies(sess.url)
-}
-
 func (sess *Session) get(path string) (*http.Response, error) {
-	return sess.client.Get(sess.url.String() + path)
+	return sess.Client.Get(sess.Url.String() + path)
 }
 
 func (sess *Session) postForm(path string, values url.Values) (*http.Response, error) {
-	return sess.client.PostForm(sess.url.String()+path, values)
+	return sess.Client.PostForm(sess.Url.String()+path, values)
 }
 
 func (sess *Session) Valid() bool {

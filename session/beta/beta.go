@@ -1,40 +1,23 @@
 package beta
 
 import (
-	"net/http"
-	"net/url"
-	//	"net/http/cookiejar"
+	"fmt"
 	"github.com/emakryo/adcoter/answer"
 	"github.com/emakryo/adcoter/status"
+	"github.com/emakryo/adcoter/session"
 )
 
 type Session struct {
-	client *http.Client
-	url    *url.URL
+	*session.SessionBase
 }
 
-func New(url string) (sess *Session, err error) {
-	return
+func New(url string) (*Session, error) {
+	sess, err := session.New(url)
+	return &Session{sess}, err
 }
 
 func ContestURL(t string, id int) string {
-	return ""
-}
-
-func (sess *Session) SetCookies(cookies []*http.Cookie) {
-	sess.client.Jar.SetCookies(sess.url, cookies)
-}
-
-func (sess *Session) Cookies() []*http.Cookie {
-	return sess.client.Jar.Cookies(sess.url)
-}
-
-func (sess *Session) Submit(ans answer.Answer) (id string, err error) {
-	return
-}
-
-func (sess *Session) Status(string) (stat status.Status, err error) {
-	return
+	return fmt.Sprintf("https://beta.atcoder.jp/contests/%s%03d", t, id)
 }
 
 func (sess *Session) Valid() bool {
@@ -47,4 +30,12 @@ func (sess *Session) Login(user string, password string) error {
 
 func (sess *Session) IsLoggedin() bool {
 	return false
+}
+
+func (sess *Session) Submit(ans answer.Answer) (id string, err error) {
+	return
+}
+
+func (sess *Session) Status(string) (stat status.Status, err error) {
+	return
 }

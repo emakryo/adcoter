@@ -47,10 +47,7 @@ func newContest(url string, isBeta bool) (c *Contest, err error) {
 		return nil, errors.New("Invalid contest")
 	}
 
-	err = c.loadCookies(cookiePath)
-	if err != nil {
-		return
-	}
+	c.loadCookies(cookiePath)
 
 	if c.sess.IsLoggedin() {
 		return

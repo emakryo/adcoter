@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<!-- saved from url=(0059)https://beta.atcoder.jp/contests/abc010/submissions/2176545 -->
+<html class="gr__beta_atcoder_jp"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>提出 #2176545 - AtCoder Beginner Contest 010</title>
+	
+	<meta http-equiv="Content-Language" content="ja">
+	
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<link href="./abc10C_6176545_files/css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="./abc10C_6176545_files/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="./abc10C_6176545_files/base.css">
+	<link rel="shortcut icon" type="image/png" href="https://beta.atcoder.jp/public/img/favicon.png">
+	<script async="" src="./abc10C_6176545_files/analytics.js"></script><script src="./abc10C_6176545_files/jquery-1.9.1.min.js"></script>
+	<script src="./abc10C_6176545_files/bootstrap.min.js"></script>
+	<script src="./abc10C_6176545_files/js.cookie.min.js"></script>
+	<script src="./abc10C_6176545_files/moment.min.js"></script>
+	<script src="./abc10C_6176545_files/ja.js"></script>
+	<script>
+		var LANG = "ja";
+		var userScreenName = "emak";
+	</script>
+	<script src="./abc10C_6176545_files/utils.js"></script>
+	
+		<script src="./abc10C_6176545_files/contest.js"></script>
+		<link href="./abc10C_6176545_files/contest.css" rel="stylesheet">
+		<script>
+			var contestScreenName = "abc010";
+			var remainingText = "残り時間";
+			var countDownText = "開始まであと";
+			var startTime = moment("2014-06-07T21:00:00+09:00");
+			var endTime = moment("2014-06-07T23:00:00+09:00");
+		</script>
+	
+	
+	
+	
+	
+	
+	
+		<link rel="stylesheet" type="text/css" href="./abc10C_6176545_files/prettify.css">
+	
+	
+	
+	<script src="./abc10C_6176545_files/base.js"></script>
+	<script src="./abc10C_6176545_files/ga.js"></script>
+</head>
+
+<body data-gr-c-s-loaded="true">
+<div id="modal-contest-start" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title">コンテスト開始</h4>
+			</div>
+			<div class="modal-body">
+				<p>AtCoder Beginner Contest 010が開始されました。</p>
+			</div>
+			<div class="modal-footer">
+				<a class="btn btn-primary" href="https://beta.atcoder.jp/contests/abc010/tasks">問題一覧ページへ移動</a>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="modal-contest-end" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title">コンテスト終了</h4>
+			</div>
+			<div class="modal-body">
+				<p>AtCoder Beginner Contest 010は終了しました。</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="main-div" class="float-container">
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+					<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="https://beta.atcoder.jp/"></a>
+			</div>
+			<div class="collapse navbar-collapse" id="navbar-collapse">
+				<ul class="nav navbar-nav">
+				
+					<li><a class="contest-title" href="https://beta.atcoder.jp/contests/abc010">AtCoder Beginner Contest 010</a></li>
+				
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="https://beta.atcoder.jp/contests/abc010/submissions/2176545#" role="button" aria-haspopup="true" aria-expanded="false">
+							<img src="./abc10C_6176545_files/ja.png"> 日本語 <span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li><a href="https://beta.atcoder.jp/contests/abc010/submissions/2176545?lang=ja"><img src="./abc10C_6176545_files/ja.png"> 日本語</a></li>
+							<li><a href="https://beta.atcoder.jp/contests/abc010/submissions/2176545?lang=en"><img src="./abc10C_6176545_files/en.png"> English</a></li>
+						</ul>
+					</li>
+					
+					
+						<li class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="https://beta.atcoder.jp/contests/abc010/submissions/2176545#" role="button" aria-haspopup="true" aria-expanded="false">
+								<span class="glyphicon glyphicon-cog" aria-hidden="true"></span> emak (Guest) <span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a href="https://beta.atcoder.jp/users/emak">マイプロフィール</a></li>
+								<li class="divider"></li>
+								<li><a href="https://beta.atcoder.jp/settings">基本設定</a></li>
+								<li><a href="https://beta.atcoder.jp/settings/icon">アイコン設定</a></li>
+								<li><a href="https://beta.atcoder.jp/settings/password">パスワードの変更</a></li>
+								<li class="divider"></li>
+								<li><a href="javascript:form_logout.submit()">ログアウト</a></li>
+							</ul>
+						</li>
+					
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<form method="POST" name="form_logout" action="https://beta.atcoder.jp/logout">
+		<input type="hidden" name="csrf_token" value="SGtSkfSLEy76dBg03iycbPd2rZjEl1SNjHnXiw87kZQ=">
+	</form>
+	<div id="main-container" class="container">
+		
+
+<div class="row">
+	<div class="col-sm-12">
+	<div>
+		<small class="contest-duration">コンテスト時間: <a href="http://www.timeanddate.com/worldclock/fixedtime.html?iso=20140607T2100&amp;p1=248" target="blank"><time class="fixtime-full">2014-06-07(土) 21:00</time></a> ~ <a href="http://www.timeanddate.com/worldclock/fixedtime.html?iso=20140607T2300&amp;p1=248" target="blank"><time class="fixtime-full">2014-06-07(土) 23:00</time></a> </small>
+		<small class="back-to-home pull-right"><a href="https://beta.atcoder.jp/">AtCoderホームへ戻る</a></small>
+	</div>
+	<ul class="nav nav-tabs">
+		<li><a href="https://beta.atcoder.jp/contests/abc010"><span class="glyphicon glyphicon-home"></span> トップ</a></li>
+		
+			<li><a href="https://beta.atcoder.jp/contests/abc010/tasks"><span class="glyphicon glyphicon-tasks"></span> 問題</a></li>
+		
+
+		
+			<li><a href="https://beta.atcoder.jp/contests/abc010/clarifications"><span class="glyphicon glyphicon-question-sign"></span> 質問 <span id="clar-badge" class="badge"></span></a></li>
+		
+
+		
+			<li><a href="https://beta.atcoder.jp/contests/abc010/submit"><span class="glyphicon glyphicon-send"></span> 提出</a></li>
+		
+
+		
+			<li class="active">
+				<a class="dropdown-toggle" data-toggle="dropdown" href="https://beta.atcoder.jp/contests/abc010/submissions/2176545#" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-list"></span> 提出一覧<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="https://beta.atcoder.jp/contests/abc010/submissions">すべての提出</a></li>
+					<li><a href="https://beta.atcoder.jp/contests/abc010/submissions/me">自分の提出</a></li>
+				</ul>
+			</li>
+		
+
+		
+			<li><a href="https://beta.atcoder.jp/contests/abc010/standings"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span> 順位表</a></li>
+		
+
+		
+			<li><a href="https://beta.atcoder.jp/contests/abc010/custom_test"><span class="glyphicon glyphicon-wrench"></span> コードテスト</a></li>
+		
+
+		
+			<li><a href="http://www.slideshare.net/chokudai/abc010-35598499"><span class="glyphicon glyphicon-book"></span> 解説</a></li>
+		
+	</ul>
+</div>
+	
+	<div class="col-sm-12">
+		<p>
+			<span class="h2">提出 #2176545</span>
+			
+		</p>
+		<p><span class="h4">ソースコード</span> <a class="btn-text toggle-btn-text source-code-expand-btn" data-on-text="拡げる" data-off-text="折りたたむ" data-target="submission-code">拡げる</a></p>
+		<div class="div-btn-copy"><span class="btn-copy btn-pre" tabindex="0" data-toggle="tooltip" data-trigger="manual" title="" data-target="submission-code-for-copy" _vimium-has-onclick-listener="" data-original-title="Copied!">Copy</span></div>
+		<div class="div-btn-copy"><span class="btn-copy btn-pre" tabindex="0" data-toggle="tooltip" data-trigger="manual" title="" data-target="for_copy0" _vimium-has-onclick-listener="" data-original-title="Copied!">Copy</span></div><pre id="submission-code" class="prettyprint linenums source-code prettyprinted" style=""><ol class="linenums"><li class="L0"><span class="com">#include</span><span class="str">&lt;iostream&gt;</span></li><li class="L1"><span class="com">#include</span><span class="str">&lt;iomanip&gt;</span></li><li class="L2"><span class="com">//#include&lt;cstdio&gt;</span></li><li class="L3"><span class="com">#include</span><span class="str">&lt;vector&gt;</span></li><li class="L4"><span class="com">#include</span><span class="str">&lt;map&gt;</span></li><li class="L5"><span class="com">#include</span><span class="str">&lt;queue&gt;</span></li><li class="L6"><span class="com">#include</span><span class="str">&lt;algorithm&gt;</span></li><li class="L7"><span class="com">#include</span><span class="str">&lt;cmath&gt;</span></li><li class="L8"><span class="com">#include</span><span class="str">&lt;cassert&gt;</span></li><li class="L9"><span class="kwd">using</span><span class="pln"> </span><span class="kwd">namespace</span><span class="pln"> std</span><span class="pun">;</span></li><li class="L0"><span class="kwd">typedef</span><span class="pln"> </span><span class="kwd">long</span><span class="pln"> </span><span class="kwd">long</span><span class="pln"> ll</span><span class="pun">;</span></li><li class="L1"><span class="kwd">int</span><span class="pln"> N</span><span class="pun">;</span></li><li class="L2"><span class="kwd">double</span><span class="pln"> </span><span class="typ">Ax</span><span class="pun">,</span><span class="pln"> </span><span class="typ">Ay</span><span class="pun">,</span><span class="pln"> </span><span class="typ">Bx</span><span class="pun">,</span><span class="pln"> </span><span class="typ">By</span><span class="pun">,</span><span class="pln"> T</span><span class="pun">,</span><span class="pln"> V</span><span class="pun">;</span></li><li class="L3"><span class="kwd">double</span><span class="pln"> X</span><span class="pun">[</span><span class="lit">1000</span><span class="pun">],</span><span class="pln"> Y</span><span class="pun">[</span><span class="lit">1000</span><span class="pun">];</span></li><li class="L4"><span class="pln">&nbsp;</span></li><li class="L5"><span class="kwd">int</span><span class="pln"> main</span><span class="pun">(){</span></li><li class="L6"><span class="pln">	cin </span><span class="pun">&gt;&gt;</span><span class="pln"> </span><span class="typ">Ax</span><span class="pln"> </span><span class="pun">&gt;&gt;</span><span class="pln"> </span><span class="typ">Ay</span><span class="pln"> </span><span class="pun">&gt;&gt;</span><span class="pln"> </span><span class="typ">Bx</span><span class="pln"> </span><span class="pun">&gt;&gt;</span><span class="pln"> </span><span class="typ">By</span><span class="pln"> </span><span class="pun">&gt;&gt;</span><span class="pln"> T </span><span class="pun">&gt;&gt;</span><span class="pln"> V</span><span class="pun">;</span></li><li class="L7"><span class="pln">	cin </span><span class="pun">&gt;&gt;</span><span class="pln"> N</span><span class="pun">;</span></li><li class="L8"><span class="pln">	</span><span class="kwd">for</span><span class="pun">(</span><span class="kwd">int</span><span class="pln"> i</span><span class="pun">=</span><span class="lit">0</span><span class="pun">;</span><span class="pln"> i</span><span class="pun">&lt;</span><span class="pln">N</span><span class="pun">;</span><span class="pln"> i</span><span class="pun">++)</span><span class="pln"> cin </span><span class="pun">&gt;&gt;</span><span class="pln"> X</span><span class="pun">[</span><span class="pln">i</span><span class="pun">]</span><span class="pln"> </span><span class="pun">&gt;&gt;</span><span class="pln"> Y</span><span class="pun">[</span><span class="pln">i</span><span class="pun">];</span></li><li class="L9"><span class="pln">&nbsp;</span></li><li class="L0"><span class="pln">	</span><span class="kwd">for</span><span class="pun">(</span><span class="kwd">int</span><span class="pln"> i</span><span class="pun">=</span><span class="lit">0</span><span class="pun">;</span><span class="pln"> i</span><span class="pun">&lt;</span><span class="pln">N</span><span class="pun">;</span><span class="pln"> i</span><span class="pun">++){</span></li><li class="L1"><span class="pln">		</span><span class="kwd">double</span><span class="pln"> d </span><span class="pun">=</span><span class="pln"> sqrt</span><span class="pun">((</span><span class="typ">Ax</span><span class="pun">-</span><span class="pln">X</span><span class="pun">[</span><span class="pln">i</span><span class="pun">])*(</span><span class="typ">Ax</span><span class="pun">-</span><span class="pln">X</span><span class="pun">[</span><span class="pln">i</span><span class="pun">])+(</span><span class="typ">Ay</span><span class="pun">-</span><span class="pln">Y</span><span class="pun">[</span><span class="pln">i</span><span class="pun">])*(</span><span class="typ">Ay</span><span class="pun">-</span><span class="pln">Y</span><span class="pun">[</span><span class="pln">i</span><span class="pun">]))</span></li><li class="L2"><span class="pln">			</span><span class="pun">+</span><span class="pln"> sqrt</span><span class="pun">((</span><span class="typ">Bx</span><span class="pun">-</span><span class="pln">X</span><span class="pun">[</span><span class="pln">i</span><span class="pun">])*(</span><span class="typ">Bx</span><span class="pun">-</span><span class="pln">X</span><span class="pun">[</span><span class="pln">i</span><span class="pun">])+(</span><span class="typ">By</span><span class="pun">-</span><span class="pln">Y</span><span class="pun">[</span><span class="pln">i</span><span class="pun">])+(</span><span class="typ">By</span><span class="pun">-</span><span class="pln">Y</span><span class="pun">[</span><span class="pln">i</span><span class="pun">]));</span></li><li class="L3"><span class="pln">		</span><span class="kwd">if</span><span class="pun">(</span><span class="pln">d </span><span class="pun">&lt;</span><span class="pln"> V</span><span class="pun">*</span><span class="pln">T</span><span class="pun">+</span><span class="lit">1e-8</span><span class="pun">){</span></li><li class="L4"><span class="pln">			cout </span><span class="pun">&lt;&lt;</span><span class="pln"> </span><span class="str">"YES"</span><span class="pln"> </span><span class="pun">&lt;&lt;</span><span class="pln"> endl</span><span class="pun">;</span></li><li class="L5"><span class="pln">			</span><span class="kwd">return</span><span class="pln"> </span><span class="lit">0</span><span class="pun">;</span></li><li class="L6"><span class="pln">		</span><span class="pun">}</span></li><li class="L7"><span class="pln">	</span><span class="pun">}</span></li><li class="L8"><span class="pln">	cout </span><span class="pun">&lt;&lt;</span><span class="pln"> </span><span class="str">"NO"</span><span class="pln"> </span><span class="pun">&lt;&lt;</span><span class="pln"> endl</span><span class="pun">;</span></li><li class="L9"><span class="pln">&nbsp;</span></li><li class="L0"><span class="pln">	</span><span class="kwd">return</span><span class="pln"> </span><span class="lit">0</span><span class="pun">;</span></li><li class="L1"><span class="pun">}</span></li></ol></pre><pre id="for_copy0" class="source-code-for-copy">#include&lt;iostream&gt;
+#include&lt;iomanip&gt;
+//#include&lt;cstdio&gt;
+#include&lt;vector&gt;
+#include&lt;map&gt;
+#include&lt;queue&gt;
+#include&lt;algorithm&gt;
+#include&lt;cmath&gt;
+#include&lt;cassert&gt;
+using namespace std;
+typedef long long ll;
+int N;
+double Ax, Ay, Bx, By, T, V;
+double X[1000], Y[1000];
+
+int main(){
+	cin &gt;&gt; Ax &gt;&gt; Ay &gt;&gt; Bx &gt;&gt; By &gt;&gt; T &gt;&gt; V;
+	cin &gt;&gt; N;
+	for(int i=0; i&lt;N; i++) cin &gt;&gt; X[i] &gt;&gt; Y[i];
+
+	for(int i=0; i&lt;N; i++){
+		double d = sqrt((Ax-X[i])*(Ax-X[i])+(Ay-Y[i])*(Ay-Y[i]))
+			+ sqrt((Bx-X[i])*(Bx-X[i])+(By-Y[i])+(By-Y[i]));
+		if(d &lt; V*T+1e-8){
+			cout &lt;&lt; "YES" &lt;&lt; endl;
+			return 0;
+		}
+	}
+	cout &lt;&lt; "NO" &lt;&lt; endl;
+
+	return 0;
+}
+</pre>
+
+		<h4>提出情報</h4>
+		<div class="panel panel-default"><table class="table table-bordered table-striped">
+			<tbody><tr>
+				<th class="col-sm-4">提出日時</th>
+				<td class="text-center"><time class="fixtime-second">2018-03-10 00:57:27</time></td>
+			</tr>
+			<tr>
+				<th>問題</th>
+				<td class="text-center"><a href="https://beta.atcoder.jp/contests/abc010/tasks/abc010_3">C - 浮気調査</a></td>
+			</tr>
+			<tr>
+				<th>ユーザ</th>
+				<td class="text-center"><a href="https://beta.atcoder.jp/users/emak">emak</a> <a href="https://beta.atcoder.jp/contests/abc010/submissions?f.User=emak"><span class="glyphicon glyphicon-search black" aria-hidden="true" data-toggle="tooltip" title="" data-original-title="emakさんの提出を見る"></span></a></td>
+			</tr>
+			<tr>
+				<th>言語</th>
+				<td class="text-center">C++14 (GCC 5.4.1)</td>
+			</tr>
+			<tr>
+				<th>得点</th>
+				<td class="text-center">0</td>
+			</tr>
+			<tr>
+				<th>コード長</th>
+				<td class="text-center">610 Byte</td>
+			</tr>
+			<tr>
+				<th>結果</th>
+				<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+			</tr>
+			
+				<tr>
+					<th>実行時間</th>
+					<td class="text-center">2 ms</td>
+				</tr>
+				<tr>
+					<th>メモリ</th>
+					<td class="text-center">256 KB</td>
+				</tr>
+			
+		</tbody></table></div>
+
+		
+
+		
+		<h4>テストケース</h4>
+			<div class="panel panel-default"><table class="table table-bordered table-striped th-center">
+				<thead>
+				<tr>
+					<th class="no-break">セット名</th>
+					<th class="no-break">得点 / 配点</th>
+					<th>テストケース</th>
+				</tr>
+				</thead>
+				<tbody>
+				
+					<tr>
+						<td class="text-center">All</td>
+						<td class="text-center">0 / 100</td>
+						<td>sample_01.txt, sample_02.txt, sample_03.txt, sample_04.txt, test_01.txt, test_02.txt, test_03.txt, test_04.txt, test_05.txt, test_06.txt, test_07.txt, test_08.txt, test_09.txt, test_10.txt, test_11.txt, test_12.txt, test_13.txt, test_14.txt, test_15.txt, test_16.txt, test_17.txt, test_18.txt, test_19.txt, test_20.txt, test_21.txt, test_22.txt, test_23.txt, test_24.txt, test_25.txt, test_26.txt, test_27.txt, test_28.txt, test_29.txt, test_30.txt, test_31.txt</td>
+					</tr>
+				
+				</tbody>
+			</table></div>
+			
+				<div class="panel panel-default"><table class="table table-bordered table-striped th-center">
+					<thead>
+					<tr>
+						<th>ケース名</th>
+						<th>結果</th>
+						<th>実行時間</th>
+						<th>メモリ</th>
+					</tr>
+					</thead>
+					<tbody>
+					
+					<tr>
+						<td class="text-center">sample_01.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">sample_02.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">sample_03.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">sample_04.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_01.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_02.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_03.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_04.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_05.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_06.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_07.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_08.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_09.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_10.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_11.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_12.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_13.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_14.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_15.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_16.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_17.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_18.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_19.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_20.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_21.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_22.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_23.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_24.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_25.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_26.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_27.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_28.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">2 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_29.txt</td>
+						
+							<td class="text-center"><span class="label label-warning" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="不正解">WA</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_30.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					<tr>
+						<td class="text-center">test_31.txt</td>
+						
+							<td class="text-center"><span class="label label-success" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="正解">AC</span></td>
+							<td class="text-right">1 ms</td>
+							<td class="text-right">256 KB</td>
+						
+					</tr>
+					
+					</tbody>
+				</table></div>
+			
+		
+	</div>
+	
+</div>
+
+
+
+
+
+		
+	</div> 
+	<hr>
+</div> 
+<div class="container">
+    <footer class="footer">
+		
+			<ul>
+				<li><a href="https://beta.atcoder.jp/contests/abc010/rule">ルール</a></li>
+				<li><a href="https://beta.atcoder.jp/contests/abc010/glossary">用語集</a></li>
+				<li><a href="https://beta.atcoder.jp/contests/abc010/faq">よくある質問</a></li>
+			</ul>
+		
+		<ul>
+			<li><a href="https://beta.atcoder.jp/tos">利用規約</a></li>
+			<li><a href="https://beta.atcoder.jp/privacy">プライバシーポリシー</a></li>
+			<li><a href="https://beta.atcoder.jp/personal">個人情報保護方針</a></li>
+			<li><a href="https://beta.atcoder.jp/company">企業情報</a></li>
+			<li><a href="https://beta.atcoder.jp/contact">お問い合わせ</a></li>
+		</ul>
+    <div class="text-center">
+        <small id="copyright">Copyright 2018 ©<a href="http://atcoder.co.jp/">AtCoder Inc.</a> All rights reserved.</small>
+    </div>
+    </footer>
+</div>
+<p id="fixed-server-timer" class="contest-timer" _vimium-has-onclick-listener="">2018-03-10 (土)<br>01:01:05 +09:00</p>
+
+
+</body></html>

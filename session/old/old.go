@@ -2,10 +2,10 @@ package old
 
 import (
 	"fmt"
+	"github.com/emakryo/adcoter/session"
 	"golang.org/x/net/html"
 	"net/http"
 	"net/url"
-	"github.com/emakryo/adcoter/session"
 )
 
 type Session struct {

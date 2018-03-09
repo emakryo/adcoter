@@ -6,7 +6,6 @@ import (
 	"github.com/emakryo/adcoter/answer"
 	"golang.org/x/net/html"
 	"io"
-	"io/ioutil"
 	"net/url"
 	"strings"
 )
@@ -31,11 +30,6 @@ func (sess *Session) Submit(ans answer.Answer) (id string, err error) {
 		return
 	}
 
-	content, err := ioutil.ReadFile(ans.Source)
-	if err != nil {
-		return
-	}
-
 	taskID, err := sess.retrieveTaskID(ans.Id)
 	if err != nil {
 		return
@@ -45,7 +39,7 @@ func (sess *Session) Submit(ans answer.Answer) (id string, err error) {
 	data.Add("__session", session)
 	data.Add("task_id", taskID)
 	data.Add("language_id_"+taskID, ans.Language)
-	data.Add("source_code", string(content))
+	data.Add("source_code", ans.Code)
 
 	resp, err = sess.postForm("/submit", data)
 	if err != nil {
@@ -53,7 +47,7 @@ func (sess *Session) Submit(ans answer.Answer) (id string, err error) {
 	}
 	defer resp.Body.Close()
 	if resp.Request.URL.Path != "/submissions/me" {
-		err = errors.New(fmt.Sprintf("%s: Submission failure", ans.Source))
+		err = errors.New("Submission failure")
 		return
 	}
 

@@ -7,6 +7,7 @@ import (
 	"github.com/emakryo/adcoter/session/beta"
 	"github.com/emakryo/adcoter/session/old"
 	"github.com/emakryo/adcoter/status"
+	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -152,6 +153,11 @@ func parseArgs() (arg argument) {
 	}
 	source := flag.Arg(0)
 
+	code, err := ioutil.ReadFile(source)
+	if err != nil {
+		fatal(err)
+	}
+
 	id := ""
 	if *prob == "" {
 		basename := path.Base(source)
@@ -167,7 +173,7 @@ func parseArgs() (arg argument) {
 
 	arg.answer = &answer.Answer{
 		Id:       id,
-		Source:   source,
+		Code:     string(code),
 		Language: language,
 	}
 

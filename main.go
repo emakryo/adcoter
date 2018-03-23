@@ -121,12 +121,15 @@ func parseArgs() (arg argument) {
 	if *arc > 0 {
 		contest_type = "arc"
 		contest_id = *arc
+		*isBeta = true;
 	} else if *abc > 0 {
 		contest_type = "abc"
 		contest_id = *abc
+		*isBeta = true;
 	} else if *agc > 0 {
 		contest_type = "agc"
 		contest_id = *agc
+		*isBeta = true;
 	}
 
 	var rawurl string

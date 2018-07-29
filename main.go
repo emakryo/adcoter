@@ -7,7 +7,9 @@ import (
 	"github.com/emakryo/adcoter/session/beta"
 	"github.com/emakryo/adcoter/session/old"
 	"github.com/emakryo/adcoter/status"
+	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -15,6 +17,7 @@ import (
 )
 
 var program string
+var logger *log.Logger
 
 func fatal(v interface{}) {
 	fmt.Printf("%s: %v\n", program, v)
@@ -86,15 +89,27 @@ type argument struct {
 }
 
 func parseArgs() (arg argument) {
-	isBeta := flag.Bool("beta", false, "use beta.atcoder.jp")
+	isBeta := flag.Bool("beta", false, "Use beta.atcoder.jp")
 	arc := flag.Int("arc", -1, "ARC")
 	abc := flag.Int("abc", -1, "ABC")
 	agc := flag.Int("agc", -1, "AGC")
 	url := flag.String("u", "", "URL for the contest")
 	prob := flag.String("p", "", "Problem ID")
 	lang := flag.String("l", "", "Language ID")
+	verb := flag.Bool("v", false, "Verbose output")
 
 	flag.Parse()
+
+	var logWriter io.Writer
+	if *verb {
+		logWriter = os.Stderr
+	} else {
+		logWriter = ioutil.Discard
+	}
+	logger = log.New(logWriter, "", log.Lshortfile)
+	logger.Println("Verbose output enabled")
+	beta.Logger = logger
+	old.Logger = logger
 
 	x := 0
 	if *arc > 0 {

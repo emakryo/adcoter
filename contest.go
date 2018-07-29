@@ -69,7 +69,7 @@ func newContest(url string, isBeta bool) (c *Contest, err error) {
 	if c.sess.IsLoggedin() {
 		err = c.saveCookies(cookiePath)
 	} else {
-		err = errors.New("Login Failured")
+		err = errors.New("Failed to login")
 	}
 	return
 }

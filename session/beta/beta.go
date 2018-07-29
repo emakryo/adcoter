@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"github.com/emakryo/adcoter/session"
 	"golang.org/x/net/html"
+	"log"
 	"net/http"
 	"net/url"
 )
+
+var Logger *log.Logger
 
 type Session struct {
 	*session.SessionBase
@@ -36,7 +39,8 @@ func (sess *Session) Valid() bool {
 }
 
 func (sess *Session) Login(user string, password string) error {
-	resp, err := sess.Client.Get("https://beta.atcoder.jp/login")
+	loginURL := "https://beta.atcoder.jp/login"
+	resp, err := sess.Client.Get(loginURL)
 	doc, err := html.Parse(resp.Body)
 	if err != nil {
 		return err
@@ -55,7 +59,10 @@ func (sess *Session) Login(user string, password string) error {
 	values.Add("username", user)
 	values.Add("password", password)
 	values.Add("csrf_token", tok)
-	_, err = sess.Client.PostForm("https://beta.atcoder.jp/login", values)
+	Logger.Println("Post form to", loginURL, ":", values)
+	resp, err = sess.Client.PostForm(loginURL, values)
+	Logger.Println("Response by POST to", loginURL, ":", resp)
+
 	if err != nil {
 		return err
 	}
@@ -110,11 +117,16 @@ func getCSRFToken(node *html.Node) string {
 func (sess *Session) IsLoggedin() bool {
 	submitURL := sess.Url.String() + "/submit"
 	resp, err := sess.Client.Get(submitURL)
+	Logger.Println("Response to", submitURL, ":", resp)
 	if err != nil {
+		Logger.Println(err)
 		return false
 	}
 	if resp.StatusCode == http.StatusOK && resp.Request.URL.String() == submitURL {
+		Logger.Println("Logged in")
 		return true
 	}
+	Logger.Println("Not logged in because", resp.StatusCode, "is not", http.StatusOK, "or",
+		resp.Request.URL.String(), "is not", submitURL)
 	return false
 }

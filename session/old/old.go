@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"github.com/emakryo/adcoter/session"
 	"golang.org/x/net/html"
+	"log"
 	"net/http"
 	"net/url"
 )
+
+var Logger *log.Logger
 
 type Session struct {
 	*session.SessionBase

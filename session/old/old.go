@@ -3,13 +3,13 @@ package old
 import (
 	"fmt"
 	"github.com/emakryo/adcoter/session"
+	"github.com/emakryo/adcoter/util"
 	"golang.org/x/net/html"
-	"log"
 	"net/http"
 	"net/url"
 )
 
-var Logger *log.Logger
+var Logger *util.Logger
 
 type Session struct {
 	*session.SessionBase

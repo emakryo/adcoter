@@ -3,6 +3,8 @@ package status
 import "fmt"
 
 type Status struct {
+	Summary string
+	Error string
 	caseNames  []string
 	caseStates []string
 }
@@ -13,16 +15,13 @@ func (stat *Status) Add(name, state string) {
 }
 
 func (stat Status) Output() {
-	ac := true
-	for _, s := range stat.caseStates {
-		if s != "AC" {
-			ac = false
-			break
-		}
-	}
-
-	if ac {
+	if stat.Summary == "AC" {
 		fmt.Printf("AC (%d cases)\n", len(stat.caseStates))
+		return
+	}
+	if stat.Summary == "CE" {
+		fmt.Println("Compile Error")
+		fmt.Println(stat.Error)
 		return
 	}
 

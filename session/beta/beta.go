@@ -4,13 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/emakryo/adcoter/session"
+	"github.com/emakryo/adcoter/util"
 	"golang.org/x/net/html"
 	"log"
 	"net/http"
 	"net/url"
 )
 
-var Logger *log.Logger
+var Logger *util.Logger
 
 type Session struct {
 	*session.SessionBase
@@ -28,10 +29,12 @@ func ContestURL(t string, id int) string {
 func (sess *Session) Valid() bool {
 	resp, err := sess.Client.Get(sess.Url.String())
 	if err != nil {
+		log.Println(err)
 		return false
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		log.Println(resp.StatusCode)
 		return false
 	} else {
 		return true

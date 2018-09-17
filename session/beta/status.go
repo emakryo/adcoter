@@ -1,119 +1,103 @@
 package beta
 
 import (
-	//"os"
+	"errors"
+	"io"
 	"fmt"
 	"github.com/emakryo/adcoter/status"
+	"github.com/emakryo/adcoter/util"
 	"golang.org/x/net/html"
 	"net/http"
-	"strings"
 )
 
 func (sess *Session) Status(id string) (stat status.Status, err error) {
 	statusURL := fmt.Sprintf("%s/submissions/%s", sess.Url.String(), id)
+	Logger.Printf("GET '%s'\n", statusURL)
 	resp, err := sess.Client.Get(statusURL)
+	Logger.Printf("GET '%s': %s\n", statusURL, resp.Status)
 	if err != nil {
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("Status of %s is not 200 OK: %v", statusURL, resp.StatusCode)
+		err = fmt.Errorf("GET '%s': %s\n", statusURL, resp.Status)
 		return
 	}
 
-	doc, err := html.Parse(resp.Body)
+	return getStatus(resp.Body)
+}
+
+func getStatus(r io.Reader) (stat status.Status, err error) {
+	Logger.Println("---Body of response---")
+	tee := io.TeeReader(r, Logger)
+	doc, err := html.Parse(tee)
 	if err != nil {
 		return
 	}
+	Logger.Println("---end of body---")
 
-	table := getLastTable(doc)
-	if table == nil {
-		err = fmt.Errorf("No table found in %v", statusURL)
+
+	tables := util.FindAll(doc, util.NewElemCond("table"))
+	Logger.Printf("Found %d table(s)\n", len(tables))
+
+	summary := getSummary(tables[0])
+	stat.Summary = summary
+	if tables == nil {
+		err = fmt.Errorf("No table found")
 	}
 
-	return getStatus(table)
-}
-
-func getLastTable(node *html.Node) *html.Node {
-	if node.Type == html.ElementNode && node.Data == "table" {
-		return node
-	}
-
-	for c := node.LastChild; c != nil; c = c.PrevSibling {
-		m := getLastTable(c)
-		if m != nil {
-			return m
-		}
-	}
-	return nil
-}
-
-func getStatus(table *html.Node) (stat status.Status, err error) {
-	var tbody *html.Node
-	for c := table.FirstChild; c != nil; c = c.NextSibling {
-		if c.Type == html.ElementNode && c.Data == "tbody" {
-			tbody = c
-			break
-		}
-	}
-	if tbody == nil {
-		err = fmt.Errorf("No tbody")
+	if summary == "" {
+		err = errors.New("Failed to get the status")
 		return
 	}
 
-	for c := tbody.FirstChild; c != nil; c = c.NextSibling {
-		if c.Type != html.ElementNode || c.Data != "tr" {
-			continue
-		}
-		n, s := getTestCase(c)
-		if n == "" || s == "" {
-			err = fmt.Errorf("Failed to parse row")
-		}
-		stat.Add(n, s)
+	if summary == "WJ" {
+		return
+	} else if summary == "CE" {
+		stat.Error, err = getCompileError(doc)
+		return
 	}
 
+	if len(tables) < 3 {
+		Logger.Println("Too few tables")
+		Logger.Println("Changing status to WJ")
+		stat.Summary = "WJ"
+		return
+	}
+
+	err = getAllTestCases(tables[2], &stat)
 	return
 }
 
-func getTbody(node *html.Node) *html.Node {
-	if node.Type == html.ElementNode && node.Data == "tbody" {
-		return node
-	}
-
-	for c := node.FirstChild; c != nil; c = c.NextSibling {
-		m := getTbody(c)
-		if m != nil {
-			return m
+func getSummary(table *html.Node) (summary string) {
+	t := util.ParseTable(table)
+	for _, r := range t {
+		if r[0] == "Status" {
+			summary = r[1]
 		}
 	}
-	return nil
+	Logger.Println("Summary: " + summary)
+	return summary
 }
 
-func getTestCase(node *html.Node) (n string, s string) {
-	var row_idx = 0
-	for c := node.FirstChild; c != nil; c = c.NextSibling {
-		if c.Type == html.ElementNode && c.Data == "td" {
-			if row_idx == 0 {
-				n = innerText(c)
-			} else if row_idx == 1 {
-				s = innerText(c)
-			}
-			row_idx += 1
-		}
+func getAllTestCases(table *html.Node, stat *status.Status) (err error) {
+	var tbody = util.FindFirst(table, util.NewElemCond("tbody"))
+	if tbody == nil {
+		err = fmt.Errorf("No tbody found in the test case table")
+		return
+	}
+
+	t := util.ParseTable(tbody)
+
+	for _, r := range t {
+		stat.Add(r[0], r[1])
 	}
 	return
 }
 
-func innerText(node *html.Node) string {
-	if node.Type == html.TextNode && node.FirstChild == nil {
-		return strings.TrimSpace(node.Data)
+func getCompileError(doc *html.Node) (string, error) {
+	pre := util.FindAll(doc, util.NewElemCond("pre"))
+	if len(pre) < 2 {
+		return "", fmt.Errorf("Too few <pre> elements: %d", len(pre))
 	}
-
-	for c := node.FirstChild; c != nil; c = c.NextSibling {
-		s := innerText(c)
-		if s != "" {
-			return s
-		}
-	}
-
-	return ""
+	return util.InnerText(pre[1]), nil
 }

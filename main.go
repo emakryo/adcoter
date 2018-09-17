@@ -7,17 +7,22 @@ import (
 	"github.com/emakryo/adcoter/session/beta"
 	"github.com/emakryo/adcoter/session/old"
 	"github.com/emakryo/adcoter/status"
+	"github.com/emakryo/adcoter/util"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
-	"path"
+	"os/user"
+	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
 
 var program string
-var logger *log.Logger
+var logger *util.Logger
+
+const retry_count = 5
 
 func fatal(v interface{}) {
 	fmt.Printf("%s: %v\n", program, v)
@@ -41,9 +46,19 @@ func main() {
 
 	fmt.Printf("Judging")
 	var stat status.Status
+	var retry = 0
 	for {
 		stat, err = arg.contest.Status(submissionId)
-		if err == nil {
+		logger.Println(stat.Summary)
+		logger.Println(err)
+		if err != nil {
+			logger.Printf("Error: %v", err)
+			retry += 1
+			if retry > retry_count {
+				logger.Fatalf("Existing after %d retry", retry)
+			}
+			logger.Printf("Retrying...(%d)", retry)
+		} else if stat.Summary != "WJ" {
 			break
 		}
 		fmt.Printf(".")
@@ -97,16 +112,34 @@ func parseArgs() (arg argument) {
 	prob := flag.String("p", "", "Problem ID")
 	lang := flag.String("l", "", "Language ID")
 	verb := flag.Bool("v", false, "Verbose output")
+	logFile := flag.String("log", "", "Log file")
 
 	flag.Parse()
 
 	var logWriter io.Writer
-	if *verb {
-		logWriter = os.Stderr
+	var err error
+	if *logFile != "" {
+		logWriter, err = os.OpenFile(*logFile, os.O_WRONLY|os.O_CREATE, 0644)
+		if err != nil {
+			exitWithUsage(err.Error())
+		}
 	} else {
-		logWriter = ioutil.Discard
+		usr, err := user.Current()
+		if err != nil {
+			fmt.Println("Could not find current user")
+		}
+		timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+		filename := filepath.Join(usr.HomeDir, ".adcoter", "log"+timestamp)
+		logWriter, err = os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0644)
+		if err != nil {
+			exitWithUsage(err.Error())
+		}
 	}
-	logger = log.New(logWriter, "", log.Lshortfile)
+
+	if *verb {
+		logWriter = io.MultiWriter(logWriter, os.Stdout)
+	}
+	logger = util.NewLogger(logWriter, "", log.Lshortfile)
 	logger.Println("Verbose output enabled")
 	beta.Logger = logger
 	old.Logger = logger
@@ -136,15 +169,15 @@ func parseArgs() (arg argument) {
 	if *arc > 0 {
 		contest_type = "arc"
 		contest_id = *arc
-		*isBeta = true;
+		*isBeta = true
 	} else if *abc > 0 {
 		contest_type = "abc"
 		contest_id = *abc
-		*isBeta = true;
+		*isBeta = true
 	} else if *agc > 0 {
 		contest_type = "agc"
 		contest_id = *agc
-		*isBeta = true;
+		*isBeta = true
 	}
 
 	var rawurl string
@@ -158,7 +191,6 @@ func parseArgs() (arg argument) {
 	} else {
 		rawurl = *url
 	}
-	var err error
 	arg.contest, err = newContest(rawurl, *isBeta)
 	if err != nil {
 		fatal(err)
@@ -178,7 +210,7 @@ func parseArgs() (arg argument) {
 
 	id := ""
 	if *prob == "" {
-		basename := path.Base(source)
+		basename := filepath.Base(source)
 		id = strings.ToUpper(strings.Split(basename, ".")[0])
 	} else {
 		id = strings.ToUpper(*prob)
